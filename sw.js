@@ -1,12 +1,24 @@
 self.addEventListener('install', (e) => {
   e.waitUntil(
-    caches.open('sleep-tracker-v1').then((cache) => {
+    caches.open('sleep-tracker-v2').then((cache) => {
       return cache.addAll([
         './',
         './index.html',
         './manifest.json',
         './icon.svg'
       ]);
+    })
+  );
+});
+
+self.addEventListener('activate', (e) => {
+  e.waitUntil(
+    caches.keys().then((keyList) => {
+      return Promise.all(keyList.map((key) => {
+        if (key !== 'sleep-tracker-v2') {
+          return caches.delete(key);
+        }
+      }));
     })
   );
 });
