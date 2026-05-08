@@ -178,13 +178,9 @@
 
     // --- Auth Logic ---
     async function checkUser() {
-      const params = new URLSearchParams(location.search);
-      if (params.get('code')) {
-        const { error } = await supabaseClient.auth.exchangeCodeForSession(params.get('code'));
-        if (!error) history.replaceState({}, document.title, location.pathname);
-      }
-
-      const { data: { session } } = await supabaseClient.auth.getSession();
+      // Supabase v2 handles session parsing automatically when detecting session in URL
+      const { data: { session }, error } = await supabaseClient.auth.getSession();
+      
       if (session) {
         currentUser = session.user;
         document.getElementById('auth-section').style.display = 'none';
@@ -192,15 +188,27 @@
         document.getElementById('user-email').textContent = session.user.email;
         loadDayData(currentViewingDate);
         fetchAllData(); // for table/export
+        
+        // Clear any auth tokens from the URL for a cleaner address bar
+        if (window.location.hash || window.location.search) {
+          history.replaceState({}, document.title, window.location.pathname);
+        }
       } else {
         currentUser = null;
         document.getElementById('auth-section').style.display = 'block';
         document.getElementById('app').style.display = 'none';
+        if (error) console.error("Auth error:", error.message);
       }
     }
 
-    document.getElementById('login-btn').onclick = () => {
-      supabaseClient.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.href } });
+    document.getElementById('login-btn').onclick = async () => {
+      // Use origin + pathname to avoid appending queries or hashes to the redirect
+      const redirectUrl = window.location.origin + window.location.pathname;
+      const { error } = await supabaseClient.auth.signInWithOAuth({ 
+        provider: 'google', 
+        options: { redirectTo: redirectUrl } 
+      });
+      if (error) alert("Login error: " + error.message);
     };
     document.getElementById('logout-btn').onclick = async () => {
       await supabaseClient.auth.signOut();
