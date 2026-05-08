@@ -50,6 +50,19 @@
     /* Quick Entry */
     .quick-entry { display: grid; grid-template-columns: repeat(auto-fit, minmax(70px, 1fr)); gap: 5px; margin-bottom: 10px; }
     .quick-entry button { padding: 15px 5px; font-weight: bold; }
+
+    /* Print Styles */
+    @media print {
+      @page { size: landscape; margin: 10mm; }
+      body { background: white; margin: 0; padding: 0; color: black; }
+      #auth-section, .card:not(#table-view), button, input { display: none !important; }
+      #app { display: block !important; }
+      #table-view { display: block !important; box-shadow: none; border: none; padding: 0; margin: 0; }
+      #table-view h3 { font-size: 18px; margin-bottom: 5px; }
+      table { width: 100%; border-collapse: collapse; font-size: 10px; min-width: auto; }
+      th, td { border: 1px solid black !important; padding: 4px; color: black; }
+      th { background: #eee !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
   </style>
 </head>
 <body>
@@ -113,6 +126,7 @@
       <div>
         <button onclick="exportCSV()" class="outline">Export CSV</button>
         <button onclick="exportJSON()" class="outline">Export JSON</button>
+        <button onclick="printPDF()" class="outline">Export PDF</button>
       </div>
     </div>
 
@@ -124,7 +138,15 @@
 
     <!-- Data Table View -->
     <div class="card" id="table-view">
-      <h3>Data Table</h3>
+      <h3>TWO WEEK SLEEP DIARY</h3>
+      <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px; font-size: 11px; margin-bottom: 10px; background: #f9f9f9; padding: 8px; border: 1px solid #aaa;">
+        <div><strong>C</strong> - Coffee, cola or tea</div>
+        <div><strong>M</strong> - Medicine</div>
+        <div><strong>A</strong> - Alcohol</div>
+        <div><strong>E</strong> - Exercise</div>
+        <div><strong>B</strong> - Go to bed</div>
+        <div><strong>Z</strong> - Asleep</div>
+      </div>
       <div id="table-container"></div>
     </div>
 
@@ -486,6 +508,17 @@
       a.href = url;
       a.download = 'sleep_data.json';
       a.click();
+    }
+
+    function printPDF() {
+      const wasTableHidden = !showingTable;
+      if (wasTableHidden) {
+        toggleView(); // temporarily render table
+      }
+      window.print();
+      if (wasTableHidden) {
+        toggleView(); // restore original view
+      }
     }
   </script>
 </body>
