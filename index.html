@@ -177,29 +177,29 @@
     }
 
     // --- Auth Logic ---
-    async function checkUser() {
-      // Supabase v2 handles session parsing automatically when detecting session in URL
-      const { data: { session }, error } = await supabaseClient.auth.getSession();
-      
+    supabaseClient.auth.onAuthStateChange((event, session) => {
       if (session) {
         currentUser = session.user;
         document.getElementById('auth-section').style.display = 'none';
         document.getElementById('app').style.display = 'block';
         document.getElementById('user-email').textContent = session.user.email;
-        loadDayData(currentViewingDate);
-        fetchAllData(); // for table/export
+        
+        // Load data on initial session or sign in
+        if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN') {
+          loadDayData(currentViewingDate);
+          fetchAllData(); // for table/export
+        }
         
         // Clear any auth tokens from the URL for a cleaner address bar
-        if (window.location.hash || window.location.search) {
+        if (event === 'SIGNED_IN' && (window.location.hash || window.location.search)) {
           history.replaceState({}, document.title, window.location.pathname);
         }
       } else {
         currentUser = null;
         document.getElementById('auth-section').style.display = 'block';
         document.getElementById('app').style.display = 'none';
-        if (error) console.error("Auth error:", error.message);
       }
-    }
+    });
 
     document.getElementById('login-btn').onclick = async () => {
       // Use origin + pathname to avoid appending queries or hashes to the redirect
@@ -210,12 +210,10 @@
       });
       if (error) alert("Login error: " + error.message);
     };
+    
     document.getElementById('logout-btn').onclick = async () => {
       await supabaseClient.auth.signOut();
-      checkUser();
     };
-    supabaseClient.auth.onAuthStateChange(() => checkUser());
-    checkUser();
 
     // --- UI Logic ---
     function renderHours() {
