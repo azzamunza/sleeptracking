@@ -74,10 +74,10 @@
       #app { display: block !important; }
       #table-view { display: block !important; box-shadow: none; border: none; padding: 0; margin: 0; background: white !important; color: black !important; }
       #table-view h3 { font-size: 18px; margin-bottom: 5px; color: black !important; }
-      table { width: 100%; border-collapse: collapse; font-size: 10px; min-width: auto; background: white !important; color: black !important; }
-      th, td { border: 1px solid black !important; padding: 4px; color: black !important; }
+      table { width: 100% !important; max-width: 100% !important; border-collapse: collapse; font-size: 9px; min-width: 0 !important; background: white !important; color: black !important; table-layout: auto; }
+      th, td { border: 1px solid black !important; padding: 2px; color: black !important; word-wrap: break-word; }
       th { background: #eee !important; color: black !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-      .table-notes, .table-type, .table-date { color: black !important; }
+      .table-notes, .table-type, .table-date { color: black !important; min-width: 0 !important; width: auto !important; white-space: normal !important; }
       .note-item { border-bottom: 1px solid #aaa !important; }
       div { color: black !important; background: transparent !important; }
     }
@@ -152,7 +152,10 @@
 
     <!-- Actions -->
     <div class="card flex-between">
-      <button id="toggle-btn" onclick="toggleView()">Toggle Table View</button>
+      <div>
+        <button id="toggle-btn" onclick="toggleView()">Toggle Table View</button>
+        <button id="toggle-notes-btn" onclick="toggleNotes()" class="outline" style="margin-left: 5px;">Toggle Notes</button>
+      </div>
       <div>
         <button id="export-csv" onclick="exportCSV()" class="outline">Export CSV</button>
         <button id="export-json" onclick="exportJSON()" class="outline">Export JSON</button>
@@ -220,6 +223,7 @@
     let isPractitionerMode = false;
     let practitionerInviteId = new URLSearchParams(window.location.search).get('invite_id');
     let showingTable = !!new URLSearchParams(window.location.search).get('invite_id');
+    let showingNotes = true;
 
 
 
@@ -237,7 +241,7 @@
       document.getElementById('logout-btn').style.display = 'none';
       
       // Disable edit controls
-      const allInputs = document.querySelectorAll('input, button:not(#toggle-btn):not(#export-csv):not(#export-json):not(#export-pdf):not(#prev-day-btn):not(#next-day-btn):not(#prev-summary-btn):not(#next-summary-btn)');
+      const allInputs = document.querySelectorAll('input, button:not(#toggle-btn):not(#export-csv):not(#export-json):not(#export-pdf):not(#prev-day-btn):not(#next-day-btn):not(#prev-summary-btn):not(#next-summary-btn):not(#toggle-notes-btn)');
       allInputs.forEach(el => el.disabled = true);
       
       isPractitionerMode = true;
@@ -573,6 +577,11 @@
       }
     }
 
+    function toggleNotes() {
+      showingNotes = !showingNotes;
+      if (showingTable) renderTable();
+    }
+    
     function toggleView() {
       showingTable = !showingTable;
       document.getElementById('hourly-view').style.display = showingTable ? 'none' : 'block';
@@ -632,7 +641,8 @@
       hourOrder.forEach(h => {
         html += `<th>${formatHourLabel(h)}</th>`;
       });
-      html += `<th>Notes</th></tr></thead><tbody>`;
+      if (showingNotes) html += `<th>Notes</th>`;
+      html += `</tr></thead><tbody>`;
 
       allData.forEach(row => {
         const info = formatDisplayDate(row.date_string);
@@ -654,7 +664,10 @@ ${hData.note}`);
           html += `<td>${marks}</td>`;
         });
         
-        html += `<td class="table-notes">${dayNotes.join('\n\n')}</td></tr>`;
+        if (showingNotes) {
+          html += `<td class="table-notes">${dayNotes.join('\n\n')}</td>`;
+        }
+        html += `</tr>`;
       });
       html += `</tbody></table>`;
       container.innerHTML = html;
