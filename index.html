@@ -33,10 +33,16 @@
     .hour-row { border-bottom: 1px solid #eee; padding: 10px 0; display: flex; flex-direction: column; gap: 8px; }
     .hour-header { font-weight: bold; width: 60px; flex-shrink: 0; }
     .toggles { display: flex; flex-wrap: wrap; gap: 5px; }
+
+    button:disabled { background: #e0e0e0; color: #999; cursor: not-allowed; opacity: 1; border: none; }
+    button.outline:disabled { background: transparent; border: 1px solid #ccc; color: #ccc; }
+    
     .toggle-btn { 
-      padding: 6px 10px; background: #e0e0e0; color: #333; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold;
+      padding: 6px 10px; background: transparent; color: var(--primary); border: 1px solid var(--primary); border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold;
     }
     .toggle-btn.active { background: var(--primary); color: white; }
+    .toggle-btn:disabled { background: #f5f5f5; border: 1px solid #ddd; color: #aaa; }
+
     
     #app { display: none; }
     
@@ -74,28 +80,38 @@
   <div class="card" id="auth-section">
     <h2>Sleep Tracker Login</h2>
     <button id="login-btn">Sign in with Google</button>
+    <button onclick="clearCache()" style="background: #e0e0e0; color: #333;">Clear Cache</button>
   </div>
 
+  <!-- Invite Modal -->
+  <div id="invite-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
+    <div class="card" style="width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto;">
+      <div class="flex-between" style="margin-bottom: 15px;">
+        <h3>Invite Practitioner</h3>
+        <button onclick="closeInviteModal()" style="background:transparent; color:#333; font-size:24px; padding:0; margin:0; line-height:1;">&times;</button>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+         <input type="text" id="invite-name" placeholder="Practitioner Name" style="margin:0;">
+         <button id="save-invite-btn" onclick="saveInvite()">Save</button>
+         <select id="invite-list" style="padding: 8px; border: 1px solid var(--border); border-radius: 4px;" onchange="loadInvite()">
+            <option value="">-- Select Invite --</option>
+         </select>
+         <button id="revoke-invite-btn" class="outline" onclick="revokeInvite()" disabled>Revoke Invite</button>
+      </div>
+      <div id="invite-link-display" style="margin-top: 10px; font-size: 12px; color: var(--primary); word-break: break-all;"></div>
+    </div>
+  </div>
+  
   <div id="app">
     <div class="card flex-between">
       <span id="user-email"></span>
-      <button id="logout-btn" class="outline">Logout</button>
+      <div>
+        <button id="open-invite-btn" class="outline" onclick="openInviteModal()">Invite Practitioner</button>
+        <button id="logout-btn" class="outline">Logout</button>
+      </div>
     </div>
 
-    <!-- Navigation & Type of Day -->
-    <div class="card">
-      <div class="flex-between" style="margin-bottom: 10px;">
-        <button id="prev-day-btn">&larr; Prev</button>
-        <div style="text-align: center; font-weight: bold;">
-          <div id="current-date-display">Date</div>
-          <div style="font-size: 12px; font-weight: normal;" id="current-day-name">Day</div>
-        </div>
-        <button id="next-day-btn">Next &rarr;</button>
-      </div>
-      
-      <label for="type-of-day">Type of Day (Work, School, Day Off, Vacation):</label>
-      <input type="text" id="type-of-day" placeholder="e.g. Work">
-    </div>
+    
 
     <!-- Quick Entry -->
     <div class="card">
@@ -111,11 +127,7 @@
       </div>
     </div>
 
-    <!-- Key / Legend -->
-    <div class="card">
-      <h3>Key</h3>
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; font-size: 13px;">
-        <div><strong>C</strong> - Coffee, cola or tea</div>
+    
         <div><strong>M</strong> - Medicine</div>
         <div><strong>A</strong> - Alcohol</div>
         <div><strong>E</strong> - Exercise</div>
@@ -125,18 +137,14 @@
     </div>
 
 
-    <!-- Actions -->
-    <div class="card" id="invite-section">
-      <h3>Invite Practitioner</h3>
-      <div class="flex-between">
-         <input type="text" id="invite-name" placeholder="Practitioner Name" style="width: 35%; margin-bottom: 0;">
-         <button id="save-invite-btn" onclick="saveInvite()">Save</button>
-         <select id="invite-list" style="width: 30%; padding: 8px; border: 1px solid var(--border); border-radius: 4px;" onchange="loadInvite()">
-            <option value="">-- Select Invite --</option>
-         </select>
-         <button id="revoke-invite-btn" class="outline" onclick="revokeInvite()" disabled>Revoke Invite</button>
+        <!-- Daily Summary -->
+    <div class="card" id="daily-summary">
+      <div class="flex-between" style="margin-bottom: 10px;">
+        <button onclick="changeSummaryDay(-1)">&larr; Prev</button>
+        <h3 id="summary-date-display" style="margin: 0; text-align: center; font-size: 16px;"></h3>
+        <button onclick="changeSummaryDay(1)">Next &rarr;</button>
       </div>
-      <div id="invite-link-display" style="margin-top: 10px; font-size: 12px; color: var(--primary); word-break: break-all;"></div>
+      <div id="summary-content" style="font-size: 14px; white-space: pre-wrap; line-height: 1.5;"></div>
     </div>
 
     <!-- Actions -->
@@ -150,6 +158,22 @@
     </div>
 
 
+    <div id="nav-wrapper">
+<!-- Navigation & Type of Day -->
+    <div class="card">
+      <div class="flex-between" style="margin-bottom: 10px;">
+        <button id="prev-day-btn">&larr; Prev</button>
+        <div style="text-align: center; font-weight: bold;">
+          <div id="current-date-display">Date</div>
+          <div style="font-size: 12px; font-weight: normal;" id="current-day-name">Day</div>
+        </div>
+        <button id="next-day-btn">Next &rarr;</button>
+      </div>
+      
+      <label for="type-of-day">Type of Day (Work, School, Day Off, Vacation):</label>
+      <input type="text" id="type-of-day" placeholder="e.g. Work">
+    </div>
+</div>
     <!-- Hourly Log View -->
     <div class="card" id="hourly-view">
       <h3>Hourly Log</h3>
@@ -159,8 +183,7 @@
     <!-- Data Table View -->
     <div class="card" id="table-view">
       <h3>TWO WEEK SLEEP DIARY</h3>
-      <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px; font-size: 11px; margin-bottom: 10px; background: #f9f9f9; padding: 8px; border: 1px solid #aaa;">
-        <div><strong>C</strong> - Coffee, cola or tea</div>
+      <div style="font-size: 11px; margin-bottom: 10px; background: #f9f9f9; padding: 8px; border: 1px solid #aaa; text-align: center;"><strong>C</strong> - Coffee &nbsp;|&nbsp; <strong>M</strong> - Medicine &nbsp;|&nbsp; <strong>A</strong> - Alcohol &nbsp;|&nbsp; <strong>E</strong> - Exercise &nbsp;|&nbsp; <strong>B</strong> - Go to bed &nbsp;|&nbsp; <strong>Z</strong> - Asleep</div>
         <div><strong>M</strong> - Medicine</div>
         <div><strong>A</strong> - Alcohol</div>
         <div><strong>E</strong> - Exercise</div>
@@ -173,6 +196,14 @@
   </div>
 
   <script>
+    async function clearCache() {
+      if ('caches' in window) {
+        const names = await caches.keys();
+        for (let name of names) { await caches.delete(name); }
+        alert("Cache cleared!");
+        window.location.reload(true);
+      }
+    }
     // --- Supabase Setup ---
     const SUPABASE_URL = "https://nrwckhyegdkcbfbiitxz.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5yd2NraHllZ2RrY2JmYmlpdHh6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxMzYxMzcsImV4cCI6MjA4NzcxMjEzN30.j_4uCVEG2CoNv9n8tGJaPwZNqSuEqZUZUxxVLdGZcEo";
@@ -212,18 +243,9 @@
       
       isPractitionerMode = true;
       
-      // Hide all cards except the actions card and table view
-      const cards = document.querySelectorAll('.card');
-      cards.forEach(c => {
-        if (!c.classList.contains('flex-between') || c.id === 'auth-section') {
-           if (c.id !== 'table-view' && !c.querySelector('#export-csv')) {
-              c.style.display = 'none';
-           }
-        }
-      });
-      
-      document.getElementById('table-view').style.display = 'block';
-      document.getElementById('toggle-btn').disabled = true;
+      // Leave cards visible, but Toggle button should still work
+      document.getElementById('toggle-btn').disabled = false;
+      document.getElementById('open-invite-btn').style.display = 'none';
 
       loadPractitionerData();
     }
@@ -237,11 +259,31 @@
       allData = data || [];
       allData.sort((a, b) => a.date_string.localeCompare(b.date_string));
       renderTable();
+      currentSummaryDate = currentViewingDate;
+      renderSummary();
     }
 
 
     // --- Helpers ---
     // A diary day spans from 12:00 PM (Noon) to 11:59 AM the next day.
+    function getWordedDate(dateStr, prefix = '') {
+      const d = new Date(dateStr + 'T12:00:00');
+      const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+      const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+      
+      const dayName = days[d.getDay()];
+      const dateNum = d.getDate();
+      const monthName = months[d.getMonth()];
+      const year = d.getFullYear();
+      
+      let suffix = 'th';
+      if (dateNum === 1 || dateNum === 21 || dateNum === 31) suffix = 'st';
+      else if (dateNum === 2 || dateNum === 22) suffix = 'nd';
+      else if (dateNum === 3 || dateNum === 23) suffix = 'rd';
+      
+      return `${prefix}${dayName} ${dateNum}${suffix} ${monthName} ${year}`;
+    }
+
     function getDiaryDateStr(dateObj) {
       const d = new Date(dateObj);
       if (d.getHours() < 12) {
@@ -370,15 +412,16 @@
       });
     }
 
+    let currentSummaryDate = currentViewingDate;
     function updateHeader() {
-      const info = formatDisplayDate(currentViewingDate);
-      document.getElementById('current-date-display').textContent = info.date;
-      document.getElementById('current-day-name').textContent = info.day;
+      document.getElementById('current-date-display').textContent = getWordedDate(currentViewingDate);
+      const dayNameEl = document.getElementById('current-day-name');
+      if(dayNameEl) dayNameEl.style.display = 'none';
+      
       document.getElementById('type-of-day').value = todayData.type_of_day || '';
       
-      // Update quick entry label
       const now = new Date();
-      document.getElementById('current-hour-display').textContent = `Current: ${formatHourLabel(now.getHours())}`;
+      document.getElementById('current-hour-display').textContent = `Current: ${formatHourLabel(now.getHours())} - ${getWordedDate(getDiaryDateStr(now))}`;
     }
 
     document.getElementById('prev-day-btn').onclick = () => { changeDay(-1); };
@@ -506,6 +549,8 @@
       if (!error && data) {
         allData = data;
         renderTable();
+        currentSummaryDate = currentViewingDate;
+        renderSummary();
       }
     }
 
@@ -513,7 +558,48 @@
       showingTable = !showingTable;
       document.getElementById('hourly-view').style.display = showingTable ? 'none' : 'block';
       document.getElementById('table-view').style.display = showingTable ? 'block' : 'none';
+      const navWrapper = document.getElementById('nav-wrapper');
+      if (navWrapper) navWrapper.style.display = showingTable ? 'none' : 'block';
       if (showingTable) renderTable();
+    }
+
+
+    function changeSummaryDay(offset) {
+      const d = new Date(currentSummaryDate + 'T12:00:00');
+      d.setDate(d.getDate() + offset);
+      currentSummaryDate = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      renderSummary();
+    }
+
+    function renderSummary() {
+      document.getElementById('summary-date-display').textContent = getWordedDate(currentSummaryDate, 'The night of ');
+      const contentEl = document.getElementById('summary-content');
+      
+      const row = allData.find(r => r.date_string === currentSummaryDate);
+      if (!row || !row.hours || Object.keys(row.hours).length === 0) {
+        contentEl.innerHTML = '<em>No data recorded for this night.</em>';
+        return;
+      }
+
+      let html = '';
+      const markerLabels = { 'C': 'C - Coffee, cola or tea', 'M': 'M - Medicine', 'A': 'A - Alcohol', 'E': 'E - Exercise', 'B': 'B - Go to bed', 'Z': 'Z - Asleep' };
+      
+      hourOrder.forEach(h => {
+        const hData = row.hours[h];
+        if (!hData || (hData.markers.length === 0 && !hData.note)) return;
+        
+        html += `<strong>${formatHourLabel(h)}</strong><br>`;
+        if (hData.markers && hData.markers.length > 0) {
+           hData.markers.forEach(m => {
+             html += `${markerLabels[m]}<br>`;
+           });
+        }
+        if (hData.note) {
+           html += `Note: ${hData.note}<br>`;
+        }
+        html += `<br>`;
+      });
+      contentEl.innerHTML = html;
     }
 
     function renderTable() {
@@ -606,6 +692,14 @@ ${hData.note}`);
     }
 
     // --- Invite Management ---
+    function openInviteModal() {
+      document.getElementById('invite-modal').style.display = 'flex';
+      loadInvites();
+    }
+    function closeInviteModal() {
+      document.getElementById('invite-modal').style.display = 'none';
+    }
+
     async function loadInvites() {
       if (!currentUser) return;
       const { data, error } = await supabaseClient.from('invites').select('*').order('created_at', { ascending: false });
