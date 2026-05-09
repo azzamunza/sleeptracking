@@ -1,6 +1,6 @@
-self.addEventListener('install', (e) => {
+﻿self.addEventListener('install', (e) => {
   e.waitUntil(
-    caches.open('sleep-tracker-v2').then((cache) => {
+    caches.open('sleep-tracker-v3').then((cache) => {
       return cache.addAll([
         './',
         './index.html',
@@ -15,7 +15,7 @@ self.addEventListener('activate', (e) => {
   e.waitUntil(
     caches.keys().then((keyList) => {
       return Promise.all(keyList.map((key) => {
-        if (key !== 'sleep-tracker-v2') {
+        if (key !== 'sleep-tracker-v3') {
           return caches.delete(key);
         }
       }));
