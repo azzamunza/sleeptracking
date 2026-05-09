@@ -3,45 +3,49 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Sleep Tracker</title>
+  <title>The Aaron Munro Diary of Sheep Counting</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
   <link rel="manifest" href="manifest.json">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
-      --bg: #f0f2f5;
-      --card-bg: #ffffff;
-      --text: #333;
-      --primary: #4285f4;
-      --border: #ccc;
+      --bg: #111b33;
+      --card-bg: #1e2d4a;
+      --text: #fdf5d3;
+      --primary: #7ba5d6;
+      --border: #3b4f73;
+      --input-bg: #0d1527;
     }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
       margin: 0; padding: 10px; background: var(--bg); color: var(--text);
     }
     h1, h2, h3 { margin: 0 0 10px 0; }
-    .card { background: var(--card-bg); padding: 15px; margin-bottom: 15px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .card { background: var(--card-bg); padding: 15px; margin-bottom: 15px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); border: 1px solid var(--border); }
     button { 
-      background: var(--primary); color: white; border: none; padding: 10px 15px; border-radius: 6px; 
+      background: var(--primary); color: white; border: none; padding: 10px 15px; border-radius: 20px; font-weight: 700; letter-spacing: 0.5px; 
       cursor: pointer; font-size: 14px; margin: 2px;
     }
     button:disabled { opacity: 0.6; }
     button.outline { background: transparent; border: 1px solid var(--primary); color: var(--primary); }
     input[type="text"], input[type="date"] {
-      width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid var(--border); border-radius: 4px; box-sizing: border-box;
+      width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid var(--border); border-radius: 12px; box-sizing: border-box;
+      background: var(--input-bg); color: var(--text);
     }
+    select { background: var(--input-bg); color: var(--text); border: 1px solid var(--border); border-radius: 12px; }
     .flex-between { display: flex; justify-content: space-between; align-items: center; }
-    .hour-row { border-bottom: 1px solid #eee; padding: 10px 0; display: flex; flex-direction: column; gap: 8px; }
+    .hour-row { border-bottom: 1px solid var(--border); padding: 10px 0; display: flex; flex-direction: column; gap: 8px; }
     .hour-header { font-weight: bold; width: 60px; flex-shrink: 0; }
     .toggles { display: flex; flex-wrap: wrap; gap: 5px; }
 
-    button:disabled { background: #e0e0e0; color: #999; cursor: not-allowed; opacity: 1; border: none; }
+    button:disabled { background: #3b4f73; color: #8aa1c4; cursor: not-allowed; opacity: 1; border: none; }
     button.outline:disabled { background: transparent; border: 1px solid #ccc; color: #ccc; }
     
     .toggle-btn { 
-      padding: 6px 10px; background: transparent; color: var(--primary); border: 1px solid var(--primary); border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold;
+      padding: 6px 10px; background: transparent; color: var(--primary); border: 1px solid var(--primary); border-radius: 12px; cursor: pointer; font-size: 12px; font-weight: bold;
     }
     .toggle-btn.active { background: var(--primary); color: white; }
-    .toggle-btn:disabled { background: #e0e0e0; border-color: transparent; color: #999; cursor: not-allowed; }
+    .toggle-btn:disabled { background: #3b4f73; border-color: #3b4f73; color: #8aa1c4; cursor: not-allowed; }
     .toggle-btn.active:disabled { background: #555; border-color: #555; color: white; }
 
     
@@ -49,13 +53,13 @@
     
     /*  Table View Styles */
     #table-view { display: none; overflow-x: auto; }
-    table { border-collapse: collapse; width: 100%; font-size: 12px; min-width: 800px; background: white; }
+    table { border-collapse: collapse; width: 100%; font-size: 12px; min-width: 800px; background: var(--card-bg); }
     th, td { border: 1px solid #aaa; padding: 4px; text-align: center; }
-    th { background: #f9f9f9; }
+    th { background: #162444; }
         .table-date { min-width: 110px; width: 12ch; white-space: nowrap; }
     .table-type { min-width: 250px; hyphens: none; word-wrap: break-word; text-align: left; }
     .table-notes { text-align: left; min-width: 250px; hyphens: none; word-wrap: break-word; vertical-align: top; white-space: pre-wrap; }
-    .note-item { border-bottom: 1px solid #ccc; padding: 8px 0; margin-bottom: 4px; line-height: 1.4; }
+    .note-item { border-bottom: 1px solid var(--border); padding: 8px 0; margin-bottom: 4px; line-height: 1.4; }
     .note-item:last-child { border-bottom: none; }
 
     /*  Quick Entry  */
@@ -65,27 +69,32 @@
     /* Print Styles */
     @media print {
       @page { size: landscape; margin: 10mm; }
-      body { background: white; margin: 0; padding: 0; color: black; }
-      #auth-section, .card:not(#table-view), button, input { display: none !important; }
+      body { background: white !important; margin: 0; padding: 0; color: black !important; }
+      #auth-section, .card:not(#table-view), button, input, img { display: none !important; }
       #app { display: block !important; }
-      #table-view { display: block !important; box-shadow: none; border: none; padding: 0; margin: 0; }
-      #table-view h3 { font-size: 18px; margin-bottom: 5px; }
-      table { width: 100%; border-collapse: collapse; font-size: 10px; min-width: auto; }
-      th, td { border: 1px solid black !important; padding: 4px; color: black; }
-      th { background: #eee !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      #table-view { display: block !important; box-shadow: none; border: none; padding: 0; margin: 0; background: white !important; color: black !important; }
+      #table-view h3 { font-size: 18px; margin-bottom: 5px; color: black !important; }
+      table { width: 100%; border-collapse: collapse; font-size: 10px; min-width: auto; background: white !important; color: black !important; }
+      th, td { border: 1px solid black !important; padding: 4px; color: black !important; }
+      th { background: #eee !important; color: black !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .table-notes, .table-type, .table-date { color: black !important; }
+      .note-item { border-bottom: 1px solid #aaa !important; }
+      div { color: black !important; background: transparent !important; }
     }
   </style>
 </head>
 <body>
 
-  <div class="card" id="auth-section">
-    <h2>Sleep Tracker Login</h2>
-    <button id="login-btn">Sign in with Google</button>
-    <button onclick="clearCache()" style="background: #e0e0e0; color: #333;">Clear Cache</button>
+  <div class="card" id="auth-section" style="max-width: 500px; margin: 40px auto; text-align: center; padding: 30px;">
+    <img src="images/login-banner.png" alt="The Aaron Munro Diary of Sheep Counting" style="width: 100%; border-radius: 12px; margin-bottom: 25px; box-shadow: 0 4px 8px rgba(0,0,0,0.3);">
+    <h2 style="margin-bottom: 25px; font-weight: 900; letter-spacing: 1px;">Welcome to the Diary</h2>
+    <button id="login-btn" style="font-size: 16px; padding: 12px 30px;">Sign in with Google</button>
+    <br><br>
+    <button onclick="clearCache()" style="background: transparent; border: 1px solid var(--border); color: #8aa1c4; padding: 8px 20px; font-size: 12px;">Clear Cache</button>
   </div>
 
   <!-- Invite Modal -->
-  <div id="invite-modal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;">
+  <div id="invite-modal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(10, 15, 30, 0.85); z-index:9999; align-items:center; justify-content:center;">
     <div class="card" style="width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto;">
       <div class="flex-between" style="margin-bottom: 15px;">
         <h3>Invite Practitioner</h3>
@@ -94,7 +103,7 @@
       <div style="display: flex; flex-direction: column; gap: 10px;">
          <input type="text" id="invite-name" placeholder="Practitioner Name" style="margin:0;">
          <button id="save-invite-btn" onclick="saveInvite()">Save</button>
-         <select id="invite-list" style="padding: 8px; border: 1px solid var(--border); border-radius: 4px;" onchange="loadInvite()">
+         <select id="invite-list" style="padding: 8px; border: 1px solid var(--border); border-radius: 12px;" onchange="loadInvite()">
             <option value="">-- Select Invite --</option>
          </select>
          <button id="revoke-invite-btn" class="outline" onclick="revokeInvite()" disabled>Revoke Invite</button>
@@ -104,6 +113,7 @@
   </div>
   
   <div id="app">
+    <img src="images/header-banner.png" alt="The Aaron Munro Diary of Sheep Counting" style="width: 100%; border-radius: 12px; margin-bottom: 15px; display: block; box-shadow: 0 4px 8px rgba(0,0,0,0.3);">
     <div class="card flex-between">
       <span id="user-email"></span>
       <div style="display: flex; align-items: center; gap: 10px;">
@@ -177,7 +187,7 @@
     <!-- Data Table View -->
     <div class="card" id="table-view">
       <h3>TWO WEEK SLEEP DIARY</h3>
-      <div style="font-size: 11px; margin-bottom: 10px; background: #f9f9f9; padding: 8px; border: 1px solid #aaa; text-align: center;"><strong>C</strong> - Coffee &nbsp;|&nbsp; <strong>M</strong> - Medicine &nbsp;|&nbsp; <strong>A</strong> - Alcohol &nbsp;|&nbsp; <strong>E</strong> - Exercise &nbsp;|&nbsp; <strong>B</strong> - Go to bed &nbsp;|&nbsp; <strong>Z</strong> - Asleep</div>
+      <div style="font-size: 11px; margin-bottom: 10px; background: #162444; padding: 8px; border: 1px solid #aaa; text-align: center;"><strong>C</strong> - Coffee &nbsp;|&nbsp; <strong>M</strong> - Medicine &nbsp;|&nbsp; <strong>A</strong> - Alcohol &nbsp;|&nbsp; <strong>E</strong> - Exercise &nbsp;|&nbsp; <strong>B</strong> - Go to bed &nbsp;|&nbsp; <strong>Z</strong> - Asleep</div>
 
       <div id="table-container"></div>
     </div>
