@@ -47,7 +47,7 @@
     th { background: #f9f9f9; }
         .table-date { min-width: 90px; white-space: nowrap; }
     .table-type { min-width: 250px; hyphens: none; word-wrap: break-word; text-align: left; }
-    .table-notes { text-align: left; min-width: 250px; hyphens: none; word-wrap: break-word; vertical-align: top; }
+    .table-notes { text-align: left; min-width: 250px; hyphens: none; word-wrap: break-word; vertical-align: top; white-space: pre-wrap; }
     .note-item { border-bottom: 1px solid #ccc; padding: 8px 0; margin-bottom: 4px; line-height: 1.4; }
     .note-item:last-child { border-bottom: none; }
 
@@ -543,12 +543,13 @@
           const hData = hours[h];
           const marks = hData && hData.markers ? hData.markers.join(',') : '';
           if (hData && hData.note) {
-            dayNotes.push(`${formatHourLabel(h)}: ${hData.note}`);
+            dayNotes.push(`${formatHourLabel(h)}:
+${hData.note}`);
           }
           html += `<td>${marks}</td>`;
         });
         
-        html += `<td class="table-notes">${dayNotes.join('\n')}</td></tr>`;
+        html += `<td class="table-notes">${dayNotes.join('\n\n')}</td></tr>`;
       });
       html += `</tbody></table>`;
       container.innerHTML = html;
@@ -568,10 +569,11 @@
           const hData = (row.hours || {})[h];
           rowStr += `"${(hData && hData.markers) ? hData.markers.join(' ') : ''}",`;
           if (hData && hData.note) {
-            dayNotes.push(`${formatHourLabel(h)}: ${hData.note}`);
+            dayNotes.push(`${formatHourLabel(h)}:
+${hData.note}`);
           }
         });
-        rowStr += `"${dayNotes.join(' | ')}"\n`;
+        rowStr += `"${dayNotes.join('\n\n')}"\n`;
         csv += rowStr;
       });
 
