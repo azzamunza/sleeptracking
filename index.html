@@ -45,7 +45,11 @@
     table { border-collapse: collapse; width: 100%; font-size: 12px; min-width: 800px; background: white; }
     th, td { border: 1px solid #aaa; padding: 4px; text-align: center; }
     th { background: #f9f9f9; }
-    .table-notes { text-align: left; max-width: 200px; white-space: pre-wrap; }
+        .table-date { min-width: 90px; white-space: nowrap; }
+    .table-type { min-width: 250px; hyphens: none; word-wrap: break-word; text-align: left; }
+    .table-notes { text-align: left; min-width: 250px; hyphens: none; word-wrap: break-word; vertical-align: top; }
+    .note-item { border-bottom: 1px solid #ccc; padding: 4px 0; margin: 0; }
+    .note-item:last-child { border-bottom: none; }
 
     /* Quick Entry */
     .quick-entry { display: grid; grid-template-columns: repeat(auto-fit, minmax(70px, 1fr)); gap: 5px; margin-bottom: 10px; }
