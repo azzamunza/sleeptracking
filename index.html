@@ -106,7 +106,8 @@
   <div id="app">
     <div class="card flex-between">
       <span id="user-email"></span>
-      <div>
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <span id="practitioner-name-display" style="display:none; font-weight: bold; color: var(--primary);"></span>
         <button id="open-invite-btn" class="outline" onclick="openInviteModal()">Invite Practitioner</button>
         <button id="logout-btn" class="outline">Logout</button>
       </div>
@@ -240,6 +241,13 @@
     }
 
     async function loadPractitionerData() {
+      // Fetch the practitioner name
+      const { data: nameData } = await supabaseClient.rpc('get_practitioner_name', { p_invite_id: practitionerInviteId });
+      if (nameData) {
+        document.getElementById('practitioner-name-display').textContent = nameData;
+        document.getElementById('practitioner-name-display').style.display = 'inline';
+      }
+
       const { data, error } = await supabaseClient.rpc('get_practitioner_data', { p_invite_id: practitionerInviteId });
       if (error) {
         alert("Invalid or expired invite.");
