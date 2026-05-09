@@ -45,7 +45,7 @@
     table { border-collapse: collapse; width: 100%; font-size: 12px; min-width: 800px; background: white; }
     th, td { border: 1px solid #aaa; padding: 4px; text-align: center; }
     th { background: #f9f9f9; }
-        .table-date { min-width: 90px; white-space: nowrap; }
+        .table-date { min-width: 110px; width: 12ch; white-space: nowrap; }
     .table-type { min-width: 250px; hyphens: none; word-wrap: break-word; text-align: left; }
     .table-notes { text-align: left; min-width: 250px; hyphens: none; word-wrap: break-word; vertical-align: top; white-space: pre-wrap; }
     .note-item { border-bottom: 1px solid #ccc; padding: 8px 0; margin-bottom: 4px; line-height: 1.4; }
@@ -521,9 +521,9 @@
       let html = `<table>
         <thead>
           <tr>
-            <th>Date</th>
+            <th class="table-date">Date</th>
             <th>Day</th>
-            <th>Type</th>`;
+            <th class="table-type">Type of day</th>`;
       hourOrder.forEach(h => {
         html += `<th>${formatHourLabel(h)}</th>`;
       });
@@ -532,9 +532,9 @@
       allData.forEach(row => {
         const info = formatDisplayDate(row.date_string);
         html += `<tr>
-          <td>${info.date}</td>
-          <td>${info.day}</td>
-          <td>${row.type_of_day || ''}</td>`;
+          <td class="table-date">${info.date}</td>
+            <td>${info.day}</td>
+            <td class="table-type">${row.type_of_day || \'\'}</td>`;
           
         let dayNotes = [];
         const hours = row.hours || {};
