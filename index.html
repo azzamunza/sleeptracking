@@ -185,6 +185,7 @@
     let allData = []; // Cache for table view/export
     let isPractitionerMode = false;
     let practitionerInviteId = new URLSearchParams(window.location.search).get('invite_id');
+    let showingTable = false;
 
 
 
@@ -505,7 +506,6 @@
       }
     }
 
-    let showingTable = false;
     function toggleView() {
       showingTable = !showingTable;
       document.getElementById('hourly-view').style.display = showingTable ? 'none' : 'block';
