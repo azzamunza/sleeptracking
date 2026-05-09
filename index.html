@@ -84,7 +84,7 @@
   </div>
 
   <!-- Invite Modal -->
-  <div id="invite-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
+  <div id="invite-modal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;">
     <div class="card" style="width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto;">
       <div class="flex-between" style="margin-bottom: 15px;">
         <h3>Invite Practitioner</h3>
@@ -124,15 +124,6 @@
         <button onclick="quickLog('E')">Exercise (E)</button>
         <button onclick="quickLog('B')">Bed (B)</button>
         <button onclick="quickLog('Z')">Asleep (Z)</button>
-      </div>
-    </div>
-
-    
-        <div><strong>M</strong> - Medicine</div>
-        <div><strong>A</strong> - Alcohol</div>
-        <div><strong>E</strong> - Exercise</div>
-        <div><strong>B</strong> - Go to bed</div>
-        <div><strong>Z</strong> - Asleep</div>
       </div>
     </div>
 
@@ -184,12 +175,7 @@
     <div class="card" id="table-view">
       <h3>TWO WEEK SLEEP DIARY</h3>
       <div style="font-size: 11px; margin-bottom: 10px; background: #f9f9f9; padding: 8px; border: 1px solid #aaa; text-align: center;"><strong>C</strong> - Coffee &nbsp;|&nbsp; <strong>M</strong> - Medicine &nbsp;|&nbsp; <strong>A</strong> - Alcohol &nbsp;|&nbsp; <strong>E</strong> - Exercise &nbsp;|&nbsp; <strong>B</strong> - Go to bed &nbsp;|&nbsp; <strong>Z</strong> - Asleep</div>
-        <div><strong>M</strong> - Medicine</div>
-        <div><strong>A</strong> - Alcohol</div>
-        <div><strong>E</strong> - Exercise</div>
-        <div><strong>B</strong> - Go to bed</div>
-        <div><strong>Z</strong> - Asleep</div>
-      </div>
+
       <div id="table-container"></div>
     </div>
 
