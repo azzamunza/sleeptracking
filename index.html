@@ -41,7 +41,8 @@
       padding: 6px 10px; background: transparent; color: var(--primary); border: 1px solid var(--primary); border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold;
     }
     .toggle-btn.active { background: var(--primary); color: white; }
-    .toggle-btn:disabled { background: #f5f5f5; border: 1px solid #ddd; color: #aaa; }
+    .toggle-btn:disabled { background: #e0e0e0; border-color: transparent; color: #999; cursor: not-allowed; }
+    .toggle-btn.active:disabled { background: #555; border-color: #555; color: white; }
 
     
     #app { display: none; }
@@ -163,11 +164,12 @@
       
       <label for="type-of-day">Type of Day (Work, School, Day Off, Vacation):</label>
       <input type="text" id="type-of-day" placeholder="e.g. Work">
+      <div class="read-only-text" style="display:none; text-align: right; font-size: 11px; color: #777; font-style: italic; margin-top: -5px;">read only mode</div>
     </div>
 </div>
     <!-- Hourly Log View -->
     <div class="card" id="hourly-view">
-      <h3>Hourly Log</h3>
+      <h3>Hourly Log <span class="read-only-text" style="display:none; font-size: 12px; font-weight: normal; color: #777; margin-left: 10px; font-style: italic;">read only mode</span></h3>
       <div id="hours-container"></div>
     </div>
 
@@ -228,6 +230,7 @@
       allInputs.forEach(el => el.disabled = true);
       
       isPractitionerMode = true;
+      document.querySelectorAll('.read-only-text').forEach(el => el.style.display = '');
       
       // Leave cards visible, but Toggle button should still work
       document.getElementById('toggle-btn').disabled = false;
@@ -378,6 +381,7 @@
           btn.className = 'toggle-btn' + (hourData.markers.includes(m) ? ' active' : '');
           btn.textContent = markerLabels[m];
           btn.onclick = () => toggleMarker(h, m, btn);
+          if (isPractitionerMode) btn.disabled = true;
           toggles.appendChild(btn);
         });
 
@@ -388,6 +392,7 @@
         noteInput.style.margin = '0';
         noteInput.style.flexGrow = '1';
         noteInput.oninput = (e) => updateNote(h, e.target.value);
+        if (isPractitionerMode) noteInput.disabled = true;
 
         topRow.appendChild(label);
         topRow.appendChild(toggles);
