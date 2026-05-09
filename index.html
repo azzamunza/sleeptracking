@@ -131,9 +131,9 @@
         <!-- Daily Summary -->
     <div class="card" id="daily-summary">
       <div class="flex-between" style="margin-bottom: 10px;">
-        <button onclick="changeSummaryDay(-1)">&larr; Prev</button>
+        <button id="prev-summary-btn" onclick="changeSummaryDay(-1)">&larr; Prev</button>
         <h3 id="summary-date-display" style="margin: 0; text-align: center; font-size: 16px;"></h3>
-        <button onclick="changeSummaryDay(1)">Next &rarr;</button>
+        <button id="next-summary-btn" onclick="changeSummaryDay(1)">Next &rarr;</button>
       </div>
       <div id="summary-content" style="font-size: 14px; white-space: pre-wrap; line-height: 1.5;"></div>
     </div>
@@ -224,7 +224,7 @@
       document.getElementById('logout-btn').style.display = 'none';
       
       // Disable edit controls
-      const allInputs = document.querySelectorAll('input, button:not(#toggle-btn):not(#export-csv):not(#export-json):not(#export-pdf)');
+      const allInputs = document.querySelectorAll('input, button:not(#toggle-btn):not(#export-csv):not(#export-json):not(#export-pdf):not(#prev-day-btn):not(#next-day-btn):not(#prev-summary-btn):not(#next-summary-btn)');
       allInputs.forEach(el => el.disabled = true);
       
       isPractitionerMode = true;
@@ -244,6 +244,7 @@
       }
       allData = data || [];
       allData.sort((a, b) => a.date_string.localeCompare(b.date_string));
+      loadDayData(currentViewingDate);
       renderTable();
       currentSummaryDate = currentViewingDate;
       renderSummary();
@@ -428,6 +429,15 @@
     // --- Data Management ---
     async function loadDayData(dateStr) {
       todayData = { hours: {}, type_of_day: "" };
+      
+      if (isPractitionerMode) {
+        const row = allData.find(r => r.date_string === dateStr);
+        if (row) todayData = { hours: row.hours || {}, type_of_day: row.type_of_day || "" };
+        updateHeader();
+        renderHours();
+        return;
+      }
+      
       updateHeader();
       renderHours(); // reset UI immediately
 
