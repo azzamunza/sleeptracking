@@ -1,4 +1,4 @@
-﻿
+
     async function clearCache() {
       if ('caches' in window) {
         const names = await caches.keys();
@@ -24,6 +24,7 @@
     let isPractitionerMode = false;
     let practitionerInviteId = new URLSearchParams(window.location.search).get('invite_id');
     let showingTable = !!new URLSearchParams(window.location.search).get('invite_id');
+    let showingNotes = true;
 
 
 
@@ -41,7 +42,7 @@
       document.getElementById('logout-btn').style.display = 'none';
       
       // Disable edit controls
-      const allInputs = document.querySelectorAll('input, button:not(#toggle-btn):not(#export-csv):not(#export-json):not(#export-pdf):not(#prev-day-btn):not(#next-day-btn):not(#prev-summary-btn):not(#next-summary-btn)');
+      const allInputs = document.querySelectorAll('input, button:not(#toggle-btn):not(#export-csv):not(#export-json):not(#export-pdf):not(#prev-day-btn):not(#next-day-btn):not(#prev-summary-btn):not(#next-summary-btn):not(#toggle-notes-btn)');
       allInputs.forEach(el => el.disabled = true);
       
       isPractitionerMode = true;
@@ -377,6 +378,11 @@
       }
     }
 
+    function toggleNotes() {
+      showingNotes = !showingNotes;
+      if (showingTable) renderTable();
+    }
+    
     function toggleView() {
       showingTable = !showingTable;
       document.getElementById('hourly-view').style.display = showingTable ? 'none' : 'block';
@@ -436,7 +442,8 @@
       hourOrder.forEach(h => {
         html += `<th>${formatHourLabel(h)}</th>`;
       });
-      html += `<th>Notes</th></tr></thead><tbody>`;
+      if (showingNotes) html += `<th>Notes</th>`;
+      html += `</tr></thead><tbody>`;
 
       allData.forEach(row => {
         const info = formatDisplayDate(row.date_string);
@@ -458,7 +465,10 @@ ${hData.note}`);
           html += `<td>${marks}</td>`;
         });
         
-        html += `<td class="table-notes">${dayNotes.join('\n\n')}</td></tr>`;
+        if (showingNotes) {
+          html += `<td class="table-notes">${dayNotes.join('\n\n')}</td>`;
+        }
+        html += `</tr>`;
       });
       html += `</tbody></table>`;
       container.innerHTML = html;
@@ -589,4 +599,163 @@ ${hData.note}`);
         loadInvites();
       }
     }
+  
+    // --- New Mod Functions ---
+    function updateQuickEntryHeader() {
+      const hTitle = document.getElementById('quick-entry-header-title');
+      if (hTitle) {
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        hTitle.textContent = "Quick Entry - " + getWordedDate(getDiaryDateStr(now)) + " " + timeStr;
+      }
+    }
+    setInterval(updateQuickEntryHeader, 60000); // update every minute
+    
+    // Generic Dialog
+    let currentExportData = "";
+    let currentExportType = "";
+    
+    function closeGenericModal() {
+        document.getElementById('generic-modal').style.display = 'none';
+    }
+    
+    function copyGenericModal() {
+        const text = document.getElementById('generic-modal-text');
+        text.select();
+        document.execCommand('copy');
+        alert("Copied to clipboard!");
+    }
+    
+    function openExportDialog(type) {
+        currentExportType = type;
+        const modal = document.getElementById('generic-modal');
+        const title = document.getElementById('generic-modal-title');
+        const textArea = document.getElementById('generic-modal-text');
+        const expBtn = document.getElementById('generic-export-btn');
+        
+        modal.style.display = 'flex';
+        if (type === 'json') {
+            title.textContent = "Export JSON";
+            currentExportData = JSON.stringify(allData, null, 2);
+            expBtn.onclick = function() {
+                const blob = new Blob([currentExportData], { type: 'application/json' });
+                downloadBlob(blob, 'sleep_data.json');
+            };
+        } else if (type === 'csv') {
+            title.textContent = "Export CSV";
+            let csv = "Date,Day,Type of Day,";
+            hourOrder.forEach(h => { csv += `"${formatHourLabel(h)}",`; });
+            csv += "Notes\n";
+            allData.forEach(row => {
+                const info = formatDisplayDate(row.date_string);
+                let rowStr = `"${info.date}","${info.day}","${row.type_of_day || ''}",`;
+                let dayNotes = [];
+                hourOrder.forEach(h => {
+                    const hData = (row.hours || {})[h];
+                    rowStr += `"${(hData && hData.markers) ? hData.markers.join(' ') : ''}",`;
+                    if (hData && hData.note) dayNotes.push(`${formatHourLabel(h)}:\n${hData.note}`);
+                });
+                rowStr += `"${dayNotes.join('\n\n')}"\n`;
+                csv += rowStr;
+            });
+            currentExportData = csv;
+            expBtn.onclick = function() {
+                const blob = new Blob([currentExportData], { type: 'text/csv' });
+                downloadBlob(blob, 'sleep_data.csv');
+            };
+        }
+        textArea.value = currentExportData;
+    }
+    
+    function downloadBlob(blob, filename) {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        a.click();
+    }
+    
+    // Notes Layout Toggle
+    let notesUnderneath = false;
+    function toggleNotesLocation() {
+        notesUnderneath = !notesUnderneath;
+        const btn = document.getElementById('toggle-notes-loc-btn');
+        if (btn) btn.textContent = notesUnderneath ? "Notes Layout: Bottom" : "Notes Layout: Side";
+        if (showingTable) renderTable();
+    }
+    
+    // Zoom Toggle
+    let tableZoom = false;
+    function toggleTableZoom() {
+        tableZoom = !tableZoom;
+        const btn = document.getElementById('toggle-zoom-btn');
+        if (btn) btn.textContent = tableZoom ? "Zoom to Fit: On" : "Zoom to Fit: Off";
+        
+        const table = document.querySelector('#table-container table');
+        if (table) {
+            if (tableZoom) {
+                table.classList.add('table-zoom-fit');
+            } else {
+                table.classList.remove('table-zoom-fit');
+            }
+        }
+    }
+    
+    // Override renderTable to support Notes Underneath
+    const origRenderTable = renderTable;
+    renderTable = function() {
+        if (!notesUnderneath) {
+            origRenderTable();
+            const table = document.querySelector('#table-container table');
+            if (tableZoom && table) table.classList.add('table-zoom-fit');
+            return;
+        }
+        
+        // Notes underneath layout
+        const container = document.getElementById('table-container');
+        let html = `<table>
+          <thead>
+            <tr>
+              <th class="table-date">Date</th>
+              <th>Day</th>
+              <th class="table-type">Type of day</th>`;
+        hourOrder.forEach(h => { html += `<th>${formatHourLabel(h)}</th>`; });
+        html += `</tr></thead><tbody>`;
+
+        allData.forEach(row => {
+          const info = formatDisplayDate(row.date_string);
+          html += `<tr>
+            <td class="table-date">${info.date}</td>
+            <td>${info.day}</td>
+            <td class="table-type">${row.type_of_day || ''}</td>`;
+            
+          let dayNotes = [];
+          const hours = row.hours || {};
+          
+          hourOrder.forEach(h => {
+            const hData = hours[h];
+            const marks = hData && hData.markers ? hData.markers.join(',') : '';
+            if (hData && hData.note) {
+              dayNotes.push(`${formatHourLabel(h)}:\n${hData.note}`);
+            }
+            html += `<td>${marks}</td>`;
+          });
+          html += `</tr>`;
+          
+          if (showingNotes && dayNotes.length > 0) {
+              html += `<tr><td colspan="${3 + hourOrder.length}" class="table-notes" style="background:var(--input-bg); border-top:none;">
+                  <div style="padding: 5px;">${dayNotes.join('\n\n').replace(/\n/g, '<br>')}</div>
+              </td></tr>`;
+          }
+        });
+        html += `</tbody></table>`;
+        container.innerHTML = html;
+        
+        const table = document.querySelector('#table-container table');
+        if (tableZoom && table) table.classList.add('table-zoom-fit');
+    };
+    
+    // Initial calls
+    setTimeout(updateQuickEntryHeader, 500);
+
   

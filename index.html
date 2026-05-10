@@ -136,7 +136,6 @@
 <div id="invite-link-display" style="margin-top: 10px; font-size: 12px; color: var(--primary); word-break: break-all;"></div>
 </div>
 </div>
-
 <div id="generic-modal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(10, 15, 30, 0.85); z-index:9999; align-items:center; justify-content:center;">
 <div class="card" style="width: 90%; max-width: 600px; max-height: 90vh; display: flex; flex-direction: column;">
 <div class="flex-between" style="margin-bottom: 15px;">
@@ -159,12 +158,8 @@
 <button class="outline" id="logout-btn">Logout</button>
 </div>
 </div></div>
-
-
 <!-- Quick Entry -->
 <div class="card section-card"><div class="section-header" onclick="this.parentElement.classList.toggle('collapsed')"><h3 id="quick-entry-header-title">Quick Entry</h3><span class="collapse-icon">▼</span></div><div class="section-content">
-
-
 <div class="quick-entry" id="quick-entry-btns">
 <button onclick="quickLog('C')">Coffee (C)</button>
 <button onclick="quickLog('M')">Meds (M)</button>
@@ -184,17 +179,7 @@
 <div id="summary-content" style="font-size: 14px; white-space: pre-wrap; line-height: 1.5;"></div>
 </div></div>
 <!-- Actions -->
-<div class="card flex-between">
-<div>
-<button id="toggle-btn" onclick="toggleView()">Toggle Table View</button>
-<button class="outline" id="toggle-notes-btn" onclick="toggleNotes()" style="margin-left: 5px;">Toggle Notes</button>
-</div>
-<div>
-<button class="outline" id="export-csv" onclick="exportCSV()">Export CSV</button>
-<button class="outline" id="export-json" onclick="exportJSON()">Export JSON</button>
-<button class="outline" id="export-pdf" onclick="printPDF()">Export PDF</button>
-</div>
-</div>
+<div class="card flex-between section-card"><div class="section-header" onclick="this.parentElement.classList.toggle('collapsed')"><h3>My Data</h3><span class="collapse-icon">▼</span></div><div class="section-content"><div class="my-data-grid"><div style="display:flex; flex-direction:column; gap:5px;"><button id="toggle-btn" onclick="toggleView()">Toggle Table View</button><button class="outline" id="toggle-zoom-btn" onclick="toggleTableZoom()">Zoom to Fit: Off</button></div><div style="display:flex; flex-direction:column; gap:5px;"><button class="outline" id="toggle-notes-btn" onclick="toggleNotes()" style="margin-left: 5px;">Toggle Notes</button><button class="outline" id="toggle-notes-loc-btn" onclick="toggleNotesLocation()">Notes Layout: Side</button></div><div style="display:flex; flex-direction:column; gap:5px;"><button class="outline" id="export-csv" onclick="openExportDialog('csv')">Export CSV</button><button class="outline" id="export-json" onclick="openExportDialog('json')">Export JSON</button><button class="outline" id="export-pdf" onclick="printPDF()">Export PDF</button></div></div></div></div>
 <div id="nav-wrapper">
 <!-- Navigation & Type of Day -->
 <div class="card">
