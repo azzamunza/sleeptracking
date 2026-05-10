@@ -70,6 +70,9 @@
     /* Print Styles */
     @media print {
 
+      #table-container { height: auto !important; overflow: visible !important; }
+      #table-container table { transform: none !important; width: 100% !important; }
+
       #table-view .section-header { display: block !important; }
       #table-view .collapse-icon { display: none !important; }
 
@@ -180,10 +183,10 @@
 <div id="summary-content" style="font-size: 14px; white-space: pre-wrap; line-height: 1.5;"></div>
 </div></div>
 <!-- Actions -->
-<div class="card section-card"><div class="section-header" onclick="this.parentElement.classList.toggle('collapsed')"><h3>My Data</h3><span class="collapse-icon">▼</span></div><div class="section-content"><div class="my-data-grid"><div style="display:flex; flex-direction:column; gap:5px;"><button id="toggle-btn" onclick="toggleView()">Diary / Log</button><button class="outline" id="full-screen-btn" onclick="openFullScreenTable()">Open Full Screen</button></div><div style="display:flex; flex-direction:column; gap:5px;"><button class="outline" id="toggle-notes-btn" onclick="toggleNotes()" style="margin-left: 5px;">Toggle Notes</button><button class="outline" id="toggle-notes-loc-btn" onclick="toggleNotesLocation()">Notes Pos: ◨</button></div><div style="display:flex; flex-direction:column; gap:5px;"><button class="outline" id="export-csv" onclick="openExportDialog('csv')">Export CSV</button><button class="outline" id="export-json" onclick="openExportDialog('json')">Export JSON</button><button class="outline" id="export-pdf" onclick="printPDF()">Export PDF</button></div></div></div></div>
+<div class="card section-card"><div class="section-header" onclick="this.parentElement.classList.toggle('collapsed')"><h3>My Data</h3><span class="collapse-icon">▼</span></div><div class="section-content"><div class="my-data-grid"><div style="display:flex; flex-direction:column; gap:5px;"><button id="toggle-btn" onclick="toggleView()">Diary / Log</button></div><div style="display:flex; flex-direction:column; gap:5px;"><button class="outline" id="toggle-notes-btn" onclick="toggleNotes()" style="margin-left: 5px;">Toggle Notes</button><button class="outline" id="toggle-notes-loc-btn" onclick="toggleNotesLocation()">Notes Pos: ◨</button></div><div style="display:flex; flex-direction:column; gap:5px;"><button class="outline" id="export-csv" onclick="openExportDialog('csv')">Export CSV</button><button class="outline" id="export-json" onclick="openExportDialog('json')">Export JSON</button><button class="outline" id="export-pdf" onclick="printPDF()">Export PDF</button></div></div></div></div>
 <div id="nav-wrapper">
 <!-- Navigation & Type of Day -->
-<div class="card section-card"><div class="section-header" onclick="this.parentElement.classList.toggle('collapsed')"><h3>Navigation</h3><span class="collapse-icon">▼</span></div><div class="section-content">
+<div class="card section-card"><div class="section-header" onclick="this.parentElement.classList.toggle('collapsed')"><h3>Sleep Log Day Selector</h3><span class="collapse-icon">▼</span></div><div class="section-content">
 <div class="flex-between" style="margin-bottom: 10px;">
 <button id="prev-day-btn">← Prev</button>
 <div style="text-align: center; font-weight: bold;">
@@ -202,7 +205,7 @@
 <div id="hours-container"></div>
 </div></div>
 <!-- Data Table View -->
-<div class="card section-card" id="table-view"><div class="section-header" onclick="this.parentElement.classList.toggle('collapsed')"><h3>TWO WEEK SLEEP DIARY</h3><span class="collapse-icon">▼</span></div><div class="section-content">
+<div class="card section-card" id="table-view"><div class="section-header" onclick="this.parentElement.classList.toggle('collapsed')"><h3>TWO WEEK SLEEP DIARY</h3><div style="display:flex; align-items:center; gap:10px;"><button class="outline" id="full-screen-btn" onclick="event.stopPropagation(); openFullScreenTable()" style="margin:0; padding: 5px 10px; font-size: 12px; background: transparent; color: var(--text); border: 1px solid var(--text);">Open Full Screen</button><span class="collapse-icon">▼</span></div></div><div class="section-content">
 
 <div style="font-size: 11px; margin-bottom: 10px; background: #162444; padding: 10px; border: 1px solid #aaa; text-align: center; display: flex; flex-direction: column; gap: 5px;">
 <div><strong>C</strong> - Coffee  |  <strong>M</strong> - Medicine  |  <strong>A</strong> - Alcohol</div>
@@ -264,6 +267,27 @@
       // Leave cards visible, but Toggle button should still work
       document.getElementById('toggle-btn').disabled = false;
       document.getElementById('open-invite-btn').style.display = 'none';
+
+      // Set defaults for practitioner
+      showingTable = true;
+      notesUnderneath = true;
+      const notesBtn = document.getElementById('toggle-notes-loc-btn');
+      if (notesBtn) notesBtn.textContent = "Notes Pos: ⬓";
+
+      // Enable specific buttons for practitioner
+      const toEnable = [
+          'full-screen-btn', 
+          'toggle-notes-loc-btn', 
+          'generic-export-btn', 
+          'export-csv', 
+          'export-json'
+      ];
+      toEnable.forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.disabled = false;
+      });
+      // Also enable popup dialog buttons
+      document.querySelectorAll('button[onclick="copyGenericModal()"], button[onclick="closeGenericModal()"]').forEach(el => el.disabled = false);
 
       loadPractitionerData();
     }
@@ -838,6 +862,9 @@ ${hData.note}`);
                 .table-notes, .table-type, .table-date { white-space: pre-wrap !important; color: var(--text) !important; }
                 @media print {
 
+      #table-container { height: auto !important; overflow: visible !important; }
+      #table-container table { transform: none !important; width: 100% !important; }
+
       #table-view .section-header { display: block !important; }
       #table-view .collapse-icon { display: none !important; }
 
@@ -1061,6 +1088,14 @@ ${hData.note}`);
     window.addEventListener('resize', scaleTableToFit);
 
     // Initial calls
+    if (showingTable) {
+        // Force the initial view sync without toggling the boolean
+        document.getElementById('hourly-view').style.display = 'none';
+        document.getElementById('table-view').style.display = 'block';
+        const navWrapper = document.getElementById('nav-wrapper');
+        if (navWrapper) navWrapper.style.display = 'none';
+        setTimeout(renderTable, 50);
+    }
     setTimeout(updateQuickEntryHeader, 500);
 
   
