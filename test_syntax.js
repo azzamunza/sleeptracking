@@ -1,229 +1,4 @@
-<!DOCTYPE html>
-
-<html lang="en">
-<head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
-<title>The Aaron Munro Diary of Sheep Counting</title>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&amp;display=swap" rel="stylesheet"/>
-<link href="manifest.json" rel="manifest"/>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<style>
-    :root {
-      --bg: #111b33;
-      --card-bg: #1e2d4a;
-      --text: #fdf5d3;
-      --primary: #7ba5d6;
-      --border: #3b4f73;
-      --input-bg: #0d1527;
-    }
-    body {
-      font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
-      margin: 0; padding: 10px; background: var(--bg); color: var(--text);
-    }
-    h1, h2, h3 { margin: 0 0 10px 0; }
-    .card { background: var(--card-bg); padding: 15px; margin-bottom: 15px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); border: 1px solid var(--border); }
-    button { 
-      background: var(--primary); color: white; border: none; padding: 10px 15px; border-radius: 20px; font-weight: 700; letter-spacing: 0.5px; 
-      cursor: pointer; font-size: 14px; margin: 2px;
-    }
-    button:disabled { opacity: 0.6; }
-    button.outline { background: transparent; border: 1px solid var(--primary); color: var(--primary); }
-    input[type="text"], input[type="date"] {
-      width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid var(--border); border-radius: 12px; box-sizing: border-box;
-      background: var(--input-bg); color: var(--text);
-    }
-    select { background: var(--input-bg); color: var(--text); border: 1px solid var(--border); border-radius: 12px; }
-    .flex-between { display: flex; justify-content: space-between; align-items: center; }
-    .hour-row { border-bottom: 1px solid var(--border); padding: 10px 0; display: flex; flex-direction: column; gap: 8px; }
-    .hour-header { font-weight: bold; width: 60px; flex-shrink: 0; }
-    .toggles { display: flex; flex-wrap: wrap; gap: 5px; }
-
-    button:disabled { background: #3b4f73; color: #8aa1c4; cursor: not-allowed; opacity: 1; border: none; }
-    button.outline:disabled { background: transparent; border: 1px solid #ccc; color: #ccc; }
-    
-    .toggle-btn { 
-      padding: 6px 10px; background: transparent; color: var(--primary); border: 1px solid var(--primary); border-radius: 12px; cursor: pointer; font-size: 12px; font-weight: bold;
-    }
-    .toggle-btn.active { background: var(--primary); color: white; }
-    .toggle-btn:disabled { background: #3b4f73; border-color: #3b4f73; color: #8aa1c4; cursor: not-allowed; }
-    .toggle-btn.active:disabled { background: #555; border-color: #555; color: white; }
-
-    
-    #app { display: none; }
-    
-    /*  Table View Styles */
-    #table-view { display: none; overflow-x: auto; }
-    table { border-collapse: collapse; width: 100%; font-size: 12px; min-width: 800px; background: var(--card-bg); }
-    th, td { border: 1px solid #aaa; padding: 4px; text-align: center; }
-    th { background: #162444; }
-        .table-date { min-width: 110px; width: 12ch; white-space: nowrap; }
-    .table-type { min-width: 250px; hyphens: none; word-wrap: break-word; text-align: left; }
-    .table-notes { text-align: left; min-width: 250px; hyphens: none; word-wrap: break-word; vertical-align: top; white-space: pre-wrap; }
-    .note-item { border-bottom: 1px solid var(--border); padding: 8px 0; margin-bottom: 4px; line-height: 1.4; }
-    .note-item:last-child { border-bottom: none; }
-
-    /*  Quick Entry  */
-    .quick-entry { display: grid; grid-template-columns: repeat(auto-fit, minmax(70px, 1fr)); gap: 5px; margin-bottom: 10px; }
-    .quick-entry button { padding: 15px 5px; font-weight: bold; }
-
-    /* Print Styles */
-    @media print {
-      @page { size: landscape; margin: 10mm; }
-      body { background: white !important; margin: 0; padding: 0; color: black !important; }
-      #auth-section, .card:not(#table-view), button, input, img { display: none !important; }
-      #app { display: block !important; }
-      #table-view { display: block !important; box-shadow: none; border: none; padding: 0; margin: 0; background: white !important; color: black !important; }
-      #table-view h3 { font-size: 18px; margin-bottom: 5px; color: black !important; }
-      table { width: 100% !important; max-width: 100% !important; border-collapse: collapse; font-size: 9px; min-width: 0 !important; background: white !important; color: black !important; table-layout: auto; }
-      th, td { border: 1px solid black !important; padding: 2px; color: black !important; word-wrap: break-word; }
-      th { background: #eee !important; color: black !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-      .table-notes, .table-type, .table-date { color: black !important; min-width: 0 !important; width: auto !important; white-space: pre-wrap !important; }
-      .note-item { border-bottom: 1px solid #aaa !important; }
-      div { color: black !important; background: transparent !important; }
-    }
-  
-    /* New CSS */
-    .section-header {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 10px; cursor: pointer; background: var(--card-bg); border-radius: 8px;
-    }
-    .section-header h3 { margin: 0; font-size: 16px; }
-    .collapse-icon { font-size: 14px; transition: transform 0.3s; }
-    .collapsed .collapse-icon { transform: rotate(-90deg); }
-    .section-content { padding: 15px; border-top: 1px solid var(--border); }
-    .collapsed .section-content { display: none; }
-    .section-card { padding: 0; }
-    
-    .my-data-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
-    @media (max-width: 600px) {
-      .my-data-grid { grid-template-columns: 1fr; }
-      .quick-entry { grid-template-columns: repeat(3, 1fr) !important; }
-    }
-    .quick-entry { display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px; margin-bottom: 10px; }
-    
-    /* Table zoom to fit */
-    .table-zoom-fit { width: 100%; table-layout: fixed; font-size: 10px; }
-    .table-zoom-fit th, .table-zoom-fit td { word-wrap: break-word; overflow: hidden; }
-    
-    /* Dialog textarea */
-    .dialog-textarea { width: 100%; height: 200px; background: var(--input-bg); color: var(--text); border: 1px solid var(--border); padding: 10px; font-family: monospace; border-radius: 8px; resize: vertical; }
-    </style>
-</head>
-<body>
-<div class="card" id="auth-section" style="max-width: 500px; margin: 40px auto; text-align: center; padding: 30px;">
-<img alt="The Aaron Munro Diary of Sheep Counting" src="images/login-banner.png" style="width: 100%; border-radius: 12px; margin-bottom: 25px; box-shadow: 0 4px 8px rgba(0,0,0,0.3);"/>
-<h2 style="margin-bottom: 25px; font-weight: 900; letter-spacing: 1px;">Welcome to the Diary</h2>
-<button id="login-btn" style="font-size: 16px; padding: 12px 30px;">Sign in with Google</button>
-<br/><br/>
-<button onclick="clearCache()" style="background: transparent; border: 1px solid var(--border); color: #8aa1c4; padding: 8px 20px; font-size: 12px;">Clear Cache</button>
-</div>
-<!-- Invite Modal -->
-<div id="invite-modal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(10, 15, 30, 0.85); z-index:9999; align-items:center; justify-content:center;">
-<div class="card" style="width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto;">
-<div class="flex-between" style="margin-bottom: 15px;">
-<h3>Invite Practitioner</h3>
-<button onclick="closeInviteModal()" style="background:transparent; color:#fff; font-size:24px; padding:0; margin:0; line-height:1;">×</button>
-</div>
-<div style="display: flex; flex-direction: column; gap: 10px;">
-<input id="invite-name" placeholder="Practitioner Name" style="margin:0;" type="text"/>
-<button id="save-invite-btn" onclick="saveInvite()">Save</button>
-<select id="invite-list" onchange="loadInvite()" style="padding: 8px; border: 1px solid var(--border); border-radius: 12px;">
-<option value="">-- Select Invite --</option>
-</select>
-<button class="outline" disabled="" id="revoke-invite-btn" onclick="revokeInvite()">Revoke Invite</button>
-</div>
-<div id="invite-link-display" style="margin-top: 10px; font-size: 12px; color: var(--primary); word-break: break-all;"></div>
-</div>
-</div>
-
-<div id="generic-modal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(10, 15, 30, 0.85); z-index:9999; align-items:center; justify-content:center;">
-<div class="card" style="width: 90%; max-width: 600px; max-height: 90vh; display: flex; flex-direction: column;">
-<div class="flex-between" style="margin-bottom: 15px;">
-<h3 id="generic-modal-title">Data</h3>
-<button onclick="closeGenericModal()" style="background:transparent; color:#fff; font-size:24px; padding:0; margin:0; line-height:1;">×</button>
-</div>
-<div style="margin-bottom: 10px; display:flex; gap:5px;">
-<button id="generic-export-btn">Export</button>
-<button onclick="copyGenericModal()">Copy to Clipboard</button>
-<button class="outline" onclick="closeGenericModal()">Close</button>
-</div>
-<textarea class="dialog-textarea" id="generic-modal-text" readonly=""></textarea>
-</div>
-</div>
-<div id="app"><div class="card" style="padding:0; overflow:hidden;"><img alt="The Aaron Munro Diary of Sheep Counting" src="images/header-banner.png" style="width: 100%; display: block;"/><div class="card flex-between" style="padding: 10px 15px; border: none; border-radius: 0;">
-<span id="user-email"></span>
-<div style="display: flex; align-items: center; gap: 10px;">
-<span id="practitioner-name-display" style="display:none; font-weight: bold; color: var(--primary);"></span>
-<button class="outline" id="open-invite-btn" onclick="openInviteModal()">Invite</button>
-<button class="outline" id="logout-btn">Logout</button>
-</div>
-</div></div>
-
-
-<!-- Quick Entry -->
-<div class="card section-card"><div class="section-header" onclick="this.parentElement.classList.toggle('collapsed')"><h3 id="quick-entry-header-title">Quick Entry</h3><span class="collapse-icon">▼</span></div><div class="section-content">
-
-
-<div class="quick-entry" id="quick-entry-btns">
-<button onclick="quickLog('C')">Coffee (C)</button>
-<button onclick="quickLog('M')">Meds (M)</button>
-<button onclick="quickLog('A')">Alcohol (A)</button>
-<button onclick="quickLog('E')">Exercise (E)</button>
-<button onclick="quickLog('B')">Bed (B)</button>
-<button onclick="quickLog('Z')">Asleep (Z)</button>
-</div>
-</div></div>
-<!-- Daily Summary -->
-<div class="card section-card" id="daily-summary"><div class="section-header" onclick="this.parentElement.classList.toggle('collapsed')"><h3>Nightly Log</h3><span class="collapse-icon">▼</span></div><div class="section-content">
-<div class="flex-between" style="margin-bottom: 10px;">
-<button id="prev-summary-btn" onclick="changeSummaryDay(-1)">← Prev</button>
-<h3 id="summary-date-display" style="margin: 0; text-align: center; font-size: 16px;"></h3>
-<button id="next-summary-btn" onclick="changeSummaryDay(1)">Next →</button>
-</div>
-<div id="summary-content" style="font-size: 14px; white-space: pre-wrap; line-height: 1.5;"></div>
-</div></div>
-<!-- Actions -->
-<div class="card flex-between">
-<div>
-<button id="toggle-btn" onclick="toggleView()">Toggle Table View</button>
-<button class="outline" id="toggle-notes-btn" onclick="toggleNotes()" style="margin-left: 5px;">Toggle Notes</button>
-</div>
-<div>
-<button class="outline" id="export-csv" onclick="exportCSV()">Export CSV</button>
-<button class="outline" id="export-json" onclick="exportJSON()">Export JSON</button>
-<button class="outline" id="export-pdf" onclick="printPDF()">Export PDF</button>
-</div>
-</div>
-<div id="nav-wrapper">
-<!-- Navigation & Type of Day -->
-<div class="card">
-<div class="flex-between" style="margin-bottom: 10px;">
-<button id="prev-day-btn">← Prev</button>
-<div style="text-align: center; font-weight: bold;">
-<div id="current-date-display">Date</div>
-<div id="current-day-name" style="font-size: 12px; font-weight: normal;">Day</div>
-</div>
-<button id="next-day-btn">Next →</button>
-</div>
-<label for="type-of-day">Type of Day (Work, School, Day Off, Vacation):</label>
-<input id="type-of-day" placeholder="e.g. Work" type="text"/>
-<div class="read-only-text" style="display:none; text-align: right; font-size: 11px; color: #777; font-style: italic; margin-top: -5px;">read only mode</div>
-</div>
-</div>
-<!-- Hourly Log View -->
-<div class="card" id="hourly-view">
-<h3>Hourly Log <span class="read-only-text" style="display:none; font-size: 12px; font-weight: normal; color: #777; margin-left: 10px; font-style: italic;">read only mode</span></h3>
-<div id="hours-container"></div>
-</div>
-<!-- Data Table View -->
-<div class="card" id="table-view">
-<h3>TWO WEEK SLEEP DIARY</h3>
-<div style="font-size: 11px; margin-bottom: 10px; background: #162444; padding: 8px; border: 1px solid #aaa; text-align: center;"><strong>C</strong> - Coffee  |  <strong>M</strong> - Medicine  |  <strong>A</strong> - Alcohol  |  <strong>E</strong> - Exercise  |  <strong>B</strong> - Go to bed  |  <strong>Z</strong> - Asleep</div>
-<div id="table-container"></div>
-</div>
-</div>
-<script>
+﻿
     async function clearCache() {
       if ('caches' in window) {
         const names = await caches.keys();
@@ -249,7 +24,6 @@
     let isPractitionerMode = false;
     let practitionerInviteId = new URLSearchParams(window.location.search).get('invite_id');
     let showingTable = !!new URLSearchParams(window.location.search).get('invite_id');
-    let showingNotes = true;
 
 
 
@@ -267,7 +41,7 @@
       document.getElementById('logout-btn').style.display = 'none';
       
       // Disable edit controls
-      const allInputs = document.querySelectorAll('input, button:not(#toggle-btn):not(#export-csv):not(#export-json):not(#export-pdf):not(#prev-day-btn):not(#next-day-btn):not(#prev-summary-btn):not(#next-summary-btn):not(#toggle-notes-btn)');
+      const allInputs = document.querySelectorAll('input, button:not(#toggle-btn):not(#export-csv):not(#export-json):not(#export-pdf):not(#prev-day-btn):not(#next-day-btn):not(#prev-summary-btn):not(#next-summary-btn)');
       allInputs.forEach(el => el.disabled = true);
       
       isPractitionerMode = true;
@@ -603,11 +377,6 @@
       }
     }
 
-    function toggleNotes() {
-      showingNotes = !showingNotes;
-      if (showingTable) renderTable();
-    }
-    
     function toggleView() {
       showingTable = !showingTable;
       document.getElementById('hourly-view').style.display = showingTable ? 'none' : 'block';
@@ -667,8 +436,7 @@
       hourOrder.forEach(h => {
         html += `<th>${formatHourLabel(h)}</th>`;
       });
-      if (showingNotes) html += `<th>Notes</th>`;
-      html += `</tr></thead><tbody>`;
+      html += `<th>Notes</th></tr></thead><tbody>`;
 
       allData.forEach(row => {
         const info = formatDisplayDate(row.date_string);
@@ -690,10 +458,7 @@ ${hData.note}`);
           html += `<td>${marks}</td>`;
         });
         
-        if (showingNotes) {
-          html += `<td class="table-notes">${dayNotes.join('\n\n')}</td>`;
-        }
-        html += `</tr>`;
+        html += `<td class="table-notes">${dayNotes.join('\n\n')}</td></tr>`;
       });
       html += `</tbody></table>`;
       container.innerHTML = html;
@@ -825,164 +590,3 @@ ${hData.note}`);
       }
     }
   
-    // --- New Mod Functions ---
-    function updateQuickEntryHeader() {
-      const hTitle = document.getElementById('quick-entry-header-title');
-      if (hTitle) {
-        const now = new Date();
-        const timeStr = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-        hTitle.textContent = "Quick Entry - " + getWordedDate(getDiaryDateStr(now)) + " " + timeStr;
-      }
-    }
-    setInterval(updateQuickEntryHeader, 60000); // update every minute
-    
-    // Generic Dialog
-    let currentExportData = "";
-    let currentExportType = "";
-    
-    function closeGenericModal() {
-        document.getElementById('generic-modal').style.display = 'none';
-    }
-    
-    function copyGenericModal() {
-        const text = document.getElementById('generic-modal-text');
-        text.select();
-        document.execCommand('copy');
-        alert("Copied to clipboard!");
-    }
-    
-    function openExportDialog(type) {
-        currentExportType = type;
-        const modal = document.getElementById('generic-modal');
-        const title = document.getElementById('generic-modal-title');
-        const textArea = document.getElementById('generic-modal-text');
-        const expBtn = document.getElementById('generic-export-btn');
-        
-        modal.style.display = 'flex';
-        if (type === 'json') {
-            title.textContent = "Export JSON";
-            currentExportData = JSON.stringify(allData, null, 2);
-            expBtn.onclick = function() {
-                const blob = new Blob([currentExportData], { type: 'application/json' });
-                downloadBlob(blob, 'sleep_data.json');
-            };
-        } else if (type === 'csv') {
-            title.textContent = "Export CSV";
-            let csv = "Date,Day,Type of Day,";
-            hourOrder.forEach(h => { csv += `"${formatHourLabel(h)}",`; });
-            csv += "Notes\n";
-            allData.forEach(row => {
-                const info = formatDisplayDate(row.date_string);
-                let rowStr = `"${info.date}","${info.day}","${row.type_of_day || ''}",`;
-                let dayNotes = [];
-                hourOrder.forEach(h => {
-                    const hData = (row.hours || {})[h];
-                    rowStr += `"${(hData && hData.markers) ? hData.markers.join(' ') : ''}",`;
-                    if (hData && hData.note) dayNotes.push(`${formatHourLabel(h)}:\n${hData.note}`);
-                });
-                rowStr += `"${dayNotes.join('\n\n')}"\n`;
-                csv += rowStr;
-            });
-            currentExportData = csv;
-            expBtn.onclick = function() {
-                const blob = new Blob([currentExportData], { type: 'text/csv' });
-                downloadBlob(blob, 'sleep_data.csv');
-            };
-        }
-        textArea.value = currentExportData;
-    }
-    
-    function downloadBlob(blob, filename) {
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = filename;
-        a.click();
-    }
-    
-    // Notes Layout Toggle
-    let notesUnderneath = false;
-    function toggleNotesLocation() {
-        notesUnderneath = !notesUnderneath;
-        const btn = document.getElementById('toggle-notes-loc-btn');
-        if (btn) btn.textContent = notesUnderneath ? "Notes Layout: Bottom" : "Notes Layout: Side";
-        if (showingTable) renderTable();
-    }
-    
-    // Zoom Toggle
-    let tableZoom = false;
-    function toggleTableZoom() {
-        tableZoom = !tableZoom;
-        const btn = document.getElementById('toggle-zoom-btn');
-        if (btn) btn.textContent = tableZoom ? "Zoom to Fit: On" : "Zoom to Fit: Off";
-        
-        const table = document.querySelector('#table-container table');
-        if (table) {
-            if (tableZoom) {
-                table.classList.add('table-zoom-fit');
-            } else {
-                table.classList.remove('table-zoom-fit');
-            }
-        }
-    }
-    
-    // Override renderTable to support Notes Underneath
-    const origRenderTable = renderTable;
-    renderTable = function() {
-        if (!notesUnderneath) {
-            origRenderTable();
-            const table = document.querySelector('#table-container table');
-            if (tableZoom && table) table.classList.add('table-zoom-fit');
-            return;
-        }
-        
-        // Notes underneath layout
-        const container = document.getElementById('table-container');
-        let html = `<table>
-          <thead>
-            <tr>
-              <th class="table-date">Date</th>
-              <th>Day</th>
-              <th class="table-type">Type of day</th>`;
-        hourOrder.forEach(h => { html += `<th>${formatHourLabel(h)}</th>`; });
-        html += `</tr></thead><tbody>`;
-
-        allData.forEach(row => {
-          const info = formatDisplayDate(row.date_string);
-          html += `<tr>
-            <td class="table-date">${info.date}</td>
-            <td>${info.day}</td>
-            <td class="table-type">${row.type_of_day || ''}</td>`;
-            
-          let dayNotes = [];
-          const hours = row.hours || {};
-          
-          hourOrder.forEach(h => {
-            const hData = hours[h];
-            const marks = hData && hData.markers ? hData.markers.join(',') : '';
-            if (hData && hData.note) {
-              dayNotes.push(`${formatHourLabel(h)}:\n${hData.note}`);
-            }
-            html += `<td>${marks}</td>`;
-          });
-          html += `</tr>`;
-          
-          if (showingNotes && dayNotes.length > 0) {
-              html += `<tr><td colspan="${3 + hourOrder.length}" class="table-notes" style="background:var(--input-bg); border-top:none;">
-                  <div style="padding: 5px;">${dayNotes.join('\n\n').replace(/\n/g, '<br>')}</div>
-              </td></tr>`;
-          }
-        });
-        html += `</tbody></table>`;
-        container.innerHTML = html;
-        
-        const table = document.querySelector('#table-container table');
-        if (tableZoom && table) table.classList.add('table-zoom-fit');
-    };
-    
-    // Initial calls
-    setTimeout(updateQuickEntryHeader, 500);
-
-  </script>
-</body>
-</html>
