@@ -915,16 +915,16 @@ ${hData.note}`);
         } else if (type === 'csv') {
             title.textContent = "Export CSV";
             let csv = "Date,Day,Type of Day,";
-            hourOrder.forEach(h =&gt; { csv += `"${formatHourLabel(h)}",`; });
+            hourOrder.forEach(h => { csv += `"${formatHourLabel(h)}",`; });
             csv += "Notes\n";
-            allData.forEach(row =&gt; {
+            allData.forEach(row => {
                 const info = formatDisplayDate(row.date_string);
                 let rowStr = `"${info.date}","${info.day}","${row.type_of_day || ''}",`;
                 let dayNotes = [];
-                hourOrder.forEach(h =&gt; {
+                hourOrder.forEach(h => {
                     const hData = (row.hours || {})[h];
-                    rowStr += `"${(hData &amp;&amp; hData.markers) ? hData.markers.join(' ') : ''}",`;
-                    if (hData &amp;&amp; hData.note) dayNotes.push(`${formatHourLabel(h)}:\n${hData.note}`);
+                    rowStr += `"${(hData && hData.markers) ? hData.markers.join(' ') : ''}",`;
+                    if (hData && hData.note) dayNotes.push(`${formatHourLabel(h)}:\n${hData.note}`);
                 });
                 rowStr += `"${dayNotes.join('\n\n')}"\n`;
                 csv += rowStr;
@@ -979,12 +979,12 @@ ${hData.note}`);
 <th class="table-date">Date</th>
 <th>Day</th>
 <th class="table-type">Type of day</th>`;
-        hourOrder.forEach(h =&gt; { html += `<th>${formatHourLabel(h)}</th>`; });
+        hourOrder.forEach(h => { html += `<th>${formatHourLabel(h)}</th>`; });
         html += `</tr></thead><tbody>`;
 
         let allNotesForBottom = [];
 
-        allData.forEach(row =&gt; {
+        allData.forEach(row => {
           const info = formatDisplayDate(row.date_string);
           html += `<tr>
 <td class="table-date">${info.date}</td>
@@ -994,10 +994,10 @@ ${hData.note}`);
           let dayNotes = [];
           const hours = row.hours || {};
           
-          hourOrder.forEach(h =&gt; {
+          hourOrder.forEach(h => {
             const hData = hours[h];
-            const marks = hData &amp;&amp; hData.markers ? hData.markers.join(',') : '';
-            if (hData &amp;&amp; hData.note) {
+            const marks = hData && hData.markers ? hData.markers.join(',') : '';
+            if (hData && hData.note) {
               dayNotes.push(`<strong>${formatHourLabel(h)}</strong>:
 ${hData.note}`);
             }
@@ -1005,7 +1005,7 @@ ${hData.note}`);
           });
           html += `</tr>`;
           
-          if (dayNotes.length &gt; 0) {
+          if (dayNotes.length > 0) {
               allNotesForBottom.push(`<h3>${info.date} (${info.day})</h3>` + dayNotes.join('<br/><br/>').replace(/\n/g, '<br/>'));
           }
         });
@@ -1014,7 +1014,7 @@ ${hData.note}`);
         container.innerHTML = html;
         setTimeout(scaleTableToFit, 50);
         
-        if (showingNotes &amp;&amp; allNotesForBottom.length &gt; 0) {
+        if (showingNotes && allNotesForBottom.length > 0) {
             notesContainer.style.display = 'block';
             notesContainer.innerHTML = `<div class="card"><div style="padding: 10px;"><h2>Diary Notes</h2><hr style="border:none;border-top:1px solid #555;margin:10px 0;"/>${allNotesForBottom.join('<br/><hr style="border:none;border-top:1px solid #555;margin:10px 0;"/><br/>')}</div></div>`;
         } else {
@@ -1058,3 +1058,7 @@ ${hData.note}`);
 
   
 
+
+  </script>
+</body>
+</html>
