@@ -70,6 +70,10 @@
     /* Print Styles */
     @media print {
 
+      #table-view .card { border: 1px solid black !important; background: white !important; color: black !important; }
+      /* Ensure the notes container is visible if it doesn't have display: none inline */
+      #table-notes-bottom:not([style*="display: none"]) { display: block !important; }
+
       #table-container { height: auto !important; overflow: visible !important; }
       #table-container table { transform: none !important; width: 100% !important; }
 
@@ -78,7 +82,7 @@
 
       @page { size: landscape; margin: 10mm; }
       body { background: white !important; margin: 0; padding: 0; color: black !important; }
-      #auth-section, .card:not(#table-view), button, input, img { display: none !important; }
+      #auth-section, .card:not(#table-view):not(.section-content .card), button, input, img { display: none !important; }
       #app { display: block !important; }
       #table-view { display: block !important; box-shadow: none; border: none; padding: 0; margin: 0; background: white !important; color: black !important; }
       #table-view h3 { font-size: 18px; margin-bottom: 5px; color: black !important; }
@@ -820,6 +824,10 @@ ${hData.note}`);
                 th { background: #162444 !important; }
                 .table-notes, .table-type, .table-date { white-space: pre-wrap !important; color: var(--text) !important; }
                 @media print {
+
+      #table-view .card { border: 1px solid black !important; background: white !important; color: black !important; }
+      /* Ensure the notes container is visible if it doesn't have display: none inline */
+      #table-notes-bottom:not([style*="display: none"]) { display: block !important; }
 
       #table-container { height: auto !important; overflow: visible !important; }
       #table-container table { transform: none !important; width: 100% !important; }
