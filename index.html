@@ -69,6 +69,10 @@
 
     /* Print Styles */
     @media print {
+
+      #table-view .section-header { display: block !important; }
+      #table-view .collapse-icon { display: none !important; }
+
       @page { size: landscape; margin: 10mm; }
       body { background: white !important; margin: 0; padding: 0; color: black !important; }
       #auth-section, .card:not(#table-view), button, input, img { display: none !important; }
@@ -97,7 +101,6 @@
     
     .my-data-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
     @media (max-width: 600px) {
-      .my-data-grid { grid-template-columns: 1fr; }
       .quick-entry { grid-template-columns: repeat(3, 1fr) !important; }
     }
     .quick-entry { display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px; margin-bottom: 10px; }
@@ -201,7 +204,7 @@
 <!-- Data Table View -->
 <div class="card section-card" id="table-view"><div class="section-header" onclick="this.parentElement.classList.toggle('collapsed')"><h3>TWO WEEK SLEEP DIARY</h3><span class="collapse-icon">▼</span></div><div class="section-content">
 
-<div style="font-size: 11px; margin-bottom: 10px; background: #162444; padding: 10px; border: 1px solid #aaa; text-align: center; white-space: nowrap; overflow-x: auto; display: flex; flex-direction: column; gap: 5px;">
+<div style="font-size: 11px; margin-bottom: 10px; background: #162444; padding: 10px; border: 1px solid #aaa; text-align: center; display: flex; flex-direction: column; gap: 5px;">
 <div><strong>C</strong> - Coffee  |  <strong>M</strong> - Medicine  |  <strong>A</strong> - Alcohol</div>
 <div><strong>E</strong> - Exercise  |  <strong>B</strong> - Go to bed  |  <strong>Z</strong> - Asleep</div>
 </div>
@@ -834,6 +837,10 @@ ${hData.note}`);
                 th { background: #162444 !important; }
                 .table-notes, .table-type, .table-date { white-space: pre-wrap !important; color: var(--text) !important; }
                 @media print {
+
+      #table-view .section-header { display: block !important; }
+      #table-view .collapse-icon { display: none !important; }
+
                    body { background: white !important; color: black !important; padding: 0; }
                    h3 { color: black !important; }
                    table { background: white !important; color: black !important; }
@@ -865,7 +872,7 @@ ${hData.note}`);
                 }
                 window.onload = scaleToFit;
                 window.onresize = scaleToFit;
-            </script>
+            <\/script>
 </body></html>
         `);
         newWindow.document.close();
