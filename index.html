@@ -249,48 +249,7 @@
       navigator.serviceWorker.register('sw.js').catch(console.error);
     }
 
-    // Practitioner Mode Init
-    if (practitionerInviteId) {
-      document.getElementById('auth-section').style.display = 'none';
-      document.getElementById('app').style.display = 'block';
-      
-      document.getElementById('user-email').textContent = 'Practitioner Mode';
-      document.getElementById('logout-btn').style.display = 'none';
-      
-      // Disable edit controls
-      const allInputs = document.querySelectorAll('input, button:not(#toggle-btn):not(#export-csv):not(#export-json):not(#export-pdf):not(#prev-day-btn):not(#next-day-btn):not(#prev-summary-btn):not(#next-summary-btn):not(#toggle-notes-btn)');
-      allInputs.forEach(el => el.disabled = true);
-      
-      isPractitionerMode = true;
-      document.querySelectorAll('.read-only-text').forEach(el => el.style.display = '');
-      
-      // Leave cards visible, but Toggle button should still work
-      document.getElementById('toggle-btn').disabled = false;
-      document.getElementById('open-invite-btn').style.display = 'none';
-
-      // Set defaults for practitioner
-      showingTable = true;
-      notesUnderneath = true;
-      const notesBtn = document.getElementById('toggle-notes-loc-btn');
-      if (notesBtn) notesBtn.textContent = "Notes Pos: ⬓";
-
-      // Enable specific buttons for practitioner
-      const toEnable = [
-          'full-screen-btn', 
-          'toggle-notes-loc-btn', 
-          'generic-export-btn', 
-          'export-csv', 
-          'export-json'
-      ];
-      toEnable.forEach(id => {
-          const el = document.getElementById(id);
-          if (el) el.disabled = false;
-      });
-      // Also enable popup dialog buttons
-      document.querySelectorAll('button[onclick="copyGenericModal()"], button[onclick="closeGenericModal()"]').forEach(el => el.disabled = false);
-
-      loadPractitionerData();
-    }
+    
 
     async function loadPractitionerData() {
       // Fetch the practitioner name
@@ -1086,6 +1045,49 @@ ${hData.note}`);
     
     // Add window resize listener
     window.addEventListener('resize', scaleTableToFit);
+
+    // Practitioner Mode Init
+    if (practitionerInviteId) {
+      document.getElementById('auth-section').style.display = 'none';
+      document.getElementById('app').style.display = 'block';
+      
+      document.getElementById('user-email').textContent = 'Practitioner Mode';
+      document.getElementById('logout-btn').style.display = 'none';
+      
+      // Disable edit controls
+      const allInputs = document.querySelectorAll('input, button:not(#toggle-btn):not(#export-csv):not(#export-json):not(#export-pdf):not(#prev-day-btn):not(#next-day-btn):not(#prev-summary-btn):not(#next-summary-btn):not(#toggle-notes-btn)');
+      allInputs.forEach(el => el.disabled = true);
+      
+      isPractitionerMode = true;
+      document.querySelectorAll('.read-only-text').forEach(el => el.style.display = '');
+      
+      // Leave cards visible, but Toggle button should still work
+      document.getElementById('toggle-btn').disabled = false;
+      document.getElementById('open-invite-btn').style.display = 'none';
+
+      // Set defaults for practitioner
+      showingTable = true;
+      notesUnderneath = true;
+      const notesBtn = document.getElementById('toggle-notes-loc-btn');
+      if (notesBtn) notesBtn.textContent = "Notes Pos: ⬓";
+
+      // Enable specific buttons for practitioner
+      const toEnable = [
+          'full-screen-btn', 
+          'toggle-notes-loc-btn', 
+          'generic-export-btn', 
+          'export-csv', 
+          'export-json'
+      ];
+      toEnable.forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.disabled = false;
+      });
+      // Also enable popup dialog buttons
+      document.querySelectorAll('button[onclick="copyGenericModal()"], button[onclick="closeGenericModal()"]').forEach(el => el.disabled = false);
+
+      loadPractitionerData();
+    }
 
     // Initial calls
     if (showingTable) {
