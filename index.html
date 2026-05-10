@@ -179,10 +179,10 @@
 <div id="summary-content" style="font-size: 14px; white-space: pre-wrap; line-height: 1.5;"></div>
 </div></div>
 <!-- Actions -->
-<div class="card flex-between section-card"><div class="section-header" onclick="this.parentElement.classList.toggle('collapsed')"><h3>My Data</h3><span class="collapse-icon">▼</span></div><div class="section-content"><div class="my-data-grid"><div style="display:flex; flex-direction:column; gap:5px;"><button id="toggle-btn" onclick="toggleView()">Toggle Table View</button><button class="outline" id="toggle-zoom-btn" onclick="toggleTableZoom()">Zoom to Fit: Off</button></div><div style="display:flex; flex-direction:column; gap:5px;"><button class="outline" id="toggle-notes-btn" onclick="toggleNotes()" style="margin-left: 5px;">Toggle Notes</button><button class="outline" id="toggle-notes-loc-btn" onclick="toggleNotesLocation()">Notes Layout: Side</button></div><div style="display:flex; flex-direction:column; gap:5px;"><button class="outline" id="export-csv" onclick="openExportDialog('csv')">Export CSV</button><button class="outline" id="export-json" onclick="openExportDialog('json')">Export JSON</button><button class="outline" id="export-pdf" onclick="printPDF()">Export PDF</button></div></div></div></div>
+<div class="card section-card"><div class="section-header" onclick="this.parentElement.classList.toggle('collapsed')"><h3>My Data</h3><span class="collapse-icon">▼</span></div><div class="section-content"><div class="my-data-grid"><div style="display:flex; flex-direction:column; gap:5px;"><button id="toggle-btn" onclick="toggleView()">Toggle Table View</button><button class="outline" id="toggle-zoom-btn" onclick="toggleTableZoom()">Zoom to Fit: Off</button></div><div style="display:flex; flex-direction:column; gap:5px;"><button class="outline" id="toggle-notes-btn" onclick="toggleNotes()" style="margin-left: 5px;">Toggle Notes</button><button class="outline" id="toggle-notes-loc-btn" onclick="toggleNotesLocation()">Notes Layout: Side</button></div><div style="display:flex; flex-direction:column; gap:5px;"><button class="outline" id="export-csv" onclick="openExportDialog('csv')">Export CSV</button><button class="outline" id="export-json" onclick="openExportDialog('json')">Export JSON</button><button class="outline" id="export-pdf" onclick="printPDF()">Export PDF</button></div></div></div></div>
 <div id="nav-wrapper">
 <!-- Navigation & Type of Day -->
-<div class="card">
+<div class="card section-card"><div class="section-header" onclick="this.parentElement.classList.toggle('collapsed')"><h3>Navigation</h3><span class="collapse-icon">▼</span></div><div class="section-content">
 <div class="flex-between" style="margin-bottom: 10px;">
 <button id="prev-day-btn">← Prev</button>
 <div style="text-align: center; font-weight: bold;">
@@ -194,19 +194,19 @@
 <label for="type-of-day">Type of Day (Work, School, Day Off, Vacation):</label>
 <input id="type-of-day" placeholder="e.g. Work" type="text"/>
 <div class="read-only-text" style="display:none; text-align: right; font-size: 11px; color: #777; font-style: italic; margin-top: -5px;">read only mode</div>
-</div>
+</div></div>
 </div>
 <!-- Hourly Log View -->
-<div class="card" id="hourly-view">
-<h3>Hourly Log <span class="read-only-text" style="display:none; font-size: 12px; font-weight: normal; color: #777; margin-left: 10px; font-style: italic;">read only mode</span></h3>
+<div class="card section-card" id="hourly-view"><div class="section-header" onclick="this.parentElement.classList.toggle('collapsed')"><h3>Hourly Log</h3><span class="collapse-icon">▼</span></div><div class="section-content">
+
 <div id="hours-container"></div>
-</div>
+</div></div>
 <!-- Data Table View -->
 <div class="card" id="table-view">
 <h3>TWO WEEK SLEEP DIARY</h3>
-<div style="font-size: 11px; margin-bottom: 10px; background: #162444; padding: 8px; border: 1px solid #aaa; text-align: center;"><strong>C</strong> - Coffee  |  <strong>M</strong> - Medicine  |  <strong>A</strong> - Alcohol  |  <strong>E</strong> - Exercise  |  <strong>B</strong> - Go to bed  |  <strong>Z</strong> - Asleep</div>
+<div style="font-size: 11px; margin-bottom: 10px; background: #162444; padding: 10px; border: 1px solid #aaa; text-align: center; white-space: nowrap; overflow-x: auto;"><strong>C</strong> - Coffee  |  <strong>M</strong> - Medicine  |  <strong>A</strong> - Alcohol  |  <strong>E</strong> - Exercise  |  <strong>B</strong> - Go to bed  |  <strong>Z</strong> - Asleep</div>
 <div id="table-container"></div>
-</div>
+<div id="table-notes-bottom" style="margin-top: 15px; display: none;"></div></div>
 </div>
 <script>
     async function clearCache() {
@@ -446,7 +446,7 @@
       document.getElementById('type-of-day').value = todayData.type_of_day || '';
       
       const now = new Date();
-      document.getElementById('current-hour-display').textContent = `Current: ${formatHourLabel(now.getHours())} - ${getWordedDate(getDiaryDateStr(now))}`;
+      // Time display moved to header
     }
 
     document.getElementById('prev-day-btn').onclick = () => { changeDay(-1); };
@@ -911,11 +911,14 @@ ${hData.note}`);
         }
     }
     
+    
+    
     // Override renderTable to support Notes Underneath
     const origRenderTable = renderTable;
     renderTable = function() {
         if (!notesUnderneath) {
             origRenderTable();
+            document.getElementById('table-notes-bottom').style.display = 'none';
             const table = document.querySelector('#table-container table');
             if (tableZoom && table) table.classList.add('table-zoom-fit');
             return;
@@ -923,6 +926,8 @@ ${hData.note}`);
         
         // Notes underneath layout
         const container = document.getElementById('table-container');
+        const notesContainer = document.getElementById('table-notes-bottom');
+        
         let html = `<table>
           <thead>
             <tr>
@@ -931,6 +936,8 @@ ${hData.note}`);
               <th class="table-type">Type of day</th>`;
         hourOrder.forEach(h => { html += `<th>${formatHourLabel(h)}</th>`; });
         html += `</tr></thead><tbody>`;
+
+        let allNotesForBottom = [];
 
         allData.forEach(row => {
           const info = formatDisplayDate(row.date_string);
@@ -946,25 +953,32 @@ ${hData.note}`);
             const hData = hours[h];
             const marks = hData && hData.markers ? hData.markers.join(',') : '';
             if (hData && hData.note) {
-              dayNotes.push(`${formatHourLabel(h)}:\n${hData.note}`);
+              dayNotes.push(`<strong>${formatHourLabel(h)}</strong>:
+${hData.note}`);
             }
-            html += `<td>${marks}</td>`;
+            html += `<td>\${marks}</td>`;
           });
           html += `</tr>`;
           
-          if (showingNotes && dayNotes.length > 0) {
-              html += `<tr><td colspan="${3 + hourOrder.length}" class="table-notes" style="background:var(--input-bg); border-top:none;">
-                  <div style="padding: 5px;">${dayNotes.join('\n\n').replace(/\n/g, '<br>')}</div>
-              </td></tr>`;
+          if (dayNotes.length > 0) {
+              allNotesForBottom.push(`<h3>${info.date} (${info.day})</h3>` + dayNotes.join('<br><br>').replace(/\n/g, '<br>'));
           }
         });
+        
         html += `</tbody></table>`;
         container.innerHTML = html;
+        
+        if (showingNotes && allNotesForBottom.length > 0) {
+            notesContainer.style.display = 'block';
+            notesContainer.innerHTML = `<div class="card"><div style="padding: 10px;"><h2>Diary Notes</h2><hr style="border:none;border-top:1px solid #555;margin:10px 0;">${allNotesForBottom.join('<br><hr style="border:none;border-top:1px solid #555;margin:10px 0;"><br>')}</div></div>`;
+        } else {
+            notesContainer.style.display = 'none';
+        }
         
         const table = document.querySelector('#table-container table');
         if (tableZoom && table) table.classList.add('table-zoom-fit');
     };
-    
+
     // Initial calls
     setTimeout(updateQuickEntryHeader, 500);
 

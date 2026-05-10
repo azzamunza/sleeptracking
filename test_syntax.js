@@ -701,6 +701,7 @@ ${hData.note}`);
         }
     }
     
+    
     // Override renderTable to support Notes Underneath
     const origRenderTable = renderTable;
     renderTable = function() {
@@ -722,6 +723,8 @@ ${hData.note}`);
         hourOrder.forEach(h => { html += `<th>${formatHourLabel(h)}</th>`; });
         html += `</tr></thead><tbody>`;
 
+        let allNotesForBottom = [];
+
         allData.forEach(row => {
           const info = formatDisplayDate(row.date_string);
           html += `<tr>
@@ -742,19 +745,24 @@ ${hData.note}`);
           });
           html += `</tr>`;
           
-          if (showingNotes && dayNotes.length > 0) {
-              html += `<tr><td colspan="${3 + hourOrder.length}" class="table-notes" style="background:var(--input-bg); border-top:none;">
-                  <div style="padding: 5px;">${dayNotes.join('\n\n').replace(/\n/g, '<br>')}</div>
-              </td></tr>`;
+          if (dayNotes.length > 0) {
+              allNotesForBottom.push(`<strong>${info.date} (${info.day})</strong><br>` + dayNotes.join('<br><br>').replace(/\n/g, '<br>'));
           }
         });
+        
+        if (showingNotes && allNotesForBottom.length > 0) {
+            html += `<tr><td colspan="${3 + hourOrder.length}" class="table-notes" style="background:var(--input-bg); border-top:2px solid #aaa; padding: 15px;">
+                <div style="font-size: 14px;"><h3>Notes</h3>${allNotesForBottom.join('<br><hr style="border:none;border-top:1px solid #555;margin:10px 0;"><br>')}</div>
+            </td></tr>`;
+        }
+        
         html += `</tbody></table>`;
         container.innerHTML = html;
         
         const table = document.querySelector('#table-container table');
         if (tableZoom && table) table.classList.add('table-zoom-fit');
     };
-    
+
     // Initial calls
     setTimeout(updateQuickEntryHeader, 500);
 
