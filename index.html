@@ -852,25 +852,28 @@ ${hData.note}`);
         const newWindow = window.open('', '_blank');
         newWindow.document.write(`
             <!DOCTYPE html>
-            <html>
+            <html lang="en">
             <head>
                 <meta charset="utf-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
                 <title>Sleep Diary - Full Screen</title>
                 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
                 <style>
                     ${printStyles}
-                    body { background: #111b33; color: #fdf5d3; padding: 10px; margin: 0; font-family: 'Nunito', sans-serif; }
-                    #full-screen-container { width: 100%; overflow-x: auto; }
-                    table { width: 100%; border-collapse: collapse; background: #1e2d4a !important; color: #fdf5d3 !important; font-size: 12px; }
-                    th, td { border: 1px solid #3b4f73 !important; padding: 6px; text-align: center; }
-                    th { background: #162444 !important; }
-                    .table-notes { text-align: left; white-space: pre-wrap; }
-                    .note-item { border-bottom: 1px solid #3b4f73; padding: 5px 0; }
+                    body { background: #111b33; color: #fdf5d3; padding: 10px; margin: 0; font-family: 'Nunito', sans-serif; min-height: 100vh; }
+                    #full-screen-container { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
                     
-                    /* Override any specific table container styles that might interfere */
-                    #table-container { height: auto !important; overflow: visible !important; transform: none !important; }
-                    #table-container table { transform: none !important; width: 100% !important; min-width: 800px; }
+                    /* Force the table to be at least 850px wide, but allow container to scroll */
+                    table { width: 100%; min-width: 850px; border-collapse: collapse; background: #1e2d4a !important; color: #fdf5d3 !important; font-size: 11px; }
+                    th, td { border: 1px solid #3b4f73 !important; padding: 4px; text-align: center; }
+                    th { background: #162444 !important; position: sticky; top: 0; }
+                    .table-notes { text-align: left; white-space: pre-wrap; font-size: 13px; }
+                    .note-item { border-bottom: 1px solid #3b4f73; padding: 8px 0; }
+                    
+                    /* Ensure containers take full width */
+                    #table-container { width: 100% !important; height: auto !important; overflow: visible !important; transform: none !important; }
+                    #table-container table { transform: none !important; margin: 0; width: 100% !important; }
+                    #table-notes-bottom { width: 100%; box-sizing: border-box; display: block !important; }
                 </style>
             </head>
             <body>
@@ -883,6 +886,18 @@ ${hData.note}`);
                         ${notesContent}
                     </div>
                 </div>
+                <script>
+                    // Force a layout recalculation on load to fix mobile "init width" bugs
+                    function fixLayout() {
+                        window.scrollTo(0, 0);
+                        document.body.style.display = 'none';
+                        document.body.offsetHeight; // force reflow
+                        document.body.style.display = 'block';
+                    }
+                    window.onload = fixLayout;
+                    // Additional safety for some mobile browsers
+                    setTimeout(fixLayout, 100);
+                <\/script>
             </body>
             </html>
         `);
