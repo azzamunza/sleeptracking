@@ -5,6 +5,9 @@ This file documents every push and commit made to the repository, including inte
 ---
 
 ## [May 11, 2026]
+- **[89b8147]** - Align table cell content to the top
+    - *Improvement:* Updated CSS to use `vertical-align: top` for all table cells in both the main app and full-screen view.
+- **[9b431bc]** - Update CHANGELOG for mobile layout fix
 - **[1f6ba0e]** - Fix initial full-screen width bug on mobile and force layout reflow
     - *Bug Report:* Full screen table doesn't fill width correctly on initial load in portrait mode.
     - *Fix:* Added a `fixLayout` script to the full-screen window that forces a document reflow on load.
