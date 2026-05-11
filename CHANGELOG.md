@@ -5,6 +5,10 @@ This file documents every push and commit made to the repository, including inte
 ---
 
 ## [May 11, 2026]
+- **[a53f725]** - Implement automatic PWA updates with controllerchange listener
+    - *Improvement:* Added `controllerchange` listener to `index.html` to automatically reload the page when a new Service Worker is activated.
+    - *Improvement:* Added `reg.update()` to force a check for new versions on every page load.
+    - *PWA:* Incremented cache version to `v5`.
 - **[89b8147]** - Align table cell content to the top
     - *Improvement:* Updated CSS to use `vertical-align: top` for all table cells in both the main app and full-screen view.
 - **[9b431bc]** - Update CHANGELOG for mobile layout fix
@@ -54,7 +58,7 @@ This file documents every push and commit made to the repository, including inte
 - **[8e33713]** - Display practitioner name in header (Practitioner Mode)
 - **[2172f0e]** - Practitioner mode styling and hour log disabled states
 - **[3c95507]** - Enable date navigation in Practitioner mode and fix Day View loading
-- **[e628ab0]** - Fix stray legend HTML and improve modal mobile CSS
+- **[e628ab0]** - Fix stray legend HTML and improve mobile modal CSS
 - **[627c408]** - Mass UI update: Clear Cache, Invite Modal, Reordering, Daily Summary, Practitioner Mode Styling
 - **[cc76ef1]** - Fix syntax error with escaped quotes in table rendering
 - **[22133b4]** - Fix date column width and wrapping
