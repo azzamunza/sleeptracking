@@ -635,12 +635,25 @@
       if (showingTable) renderTable();
     }
     
+    function syncViewControls() {
+      const toggleNotesBtn = document.getElementById('toggle-notes-btn');
+      const toggleNotesLocBtn = document.getElementById('toggle-notes-loc-btn');
+      
+      if (toggleNotesBtn) toggleNotesBtn.disabled = !showingTable;
+      if (toggleNotesLocBtn) toggleNotesLocBtn.disabled = !showingTable;
+      
+      // In Practitioner Mode, we still want to keep things disabled if they aren't part of the read-only view
+      // but toggleNotes and toggleNotesLoc are part of the table view logic
+    }
+    
     function toggleView() {
       showingTable = !showingTable;
       document.getElementById('hourly-view').style.display = showingTable ? 'none' : 'block';
       document.getElementById('table-view').style.display = showingTable ? 'block' : 'none';
       const navWrapper = document.getElementById('nav-wrapper');
       if (navWrapper) navWrapper.style.display = showingTable ? 'none' : 'block';
+      
+      syncViewControls();
       if (showingTable) renderTable();
     }
 
@@ -1106,7 +1119,7 @@ ${hData.note}`);
       document.getElementById('logout-btn').style.display = 'none';
       
       // Disable edit controls
-      const allInputs = document.querySelectorAll('input, button:not(#toggle-btn):not(#export-csv):not(#export-json):not(#export-pdf):not(#prev-day-btn):not(#next-day-btn):not(#prev-summary-btn):not(#next-summary-btn):not(#toggle-notes-btn)');
+      const allInputs = document.querySelectorAll('input, button:not(#toggle-btn):not(#export-csv):not(#export-json):not(#export-pdf):not(#prev-day-btn):not(#next-day-btn):not(#prev-summary-btn):not(#next-summary-btn):not(#toggle-notes-btn):not(#toggle-notes-loc-btn)');
       allInputs.forEach(el => el.disabled = true);
       
       document.querySelectorAll('.read-only-text').forEach(el => el.style.display = '');
@@ -1124,6 +1137,7 @@ ${hData.note}`);
       // Enable specific buttons for practitioner
       const toEnable = [
           'full-screen-btn', 
+          'toggle-notes-btn',
           'toggle-notes-loc-btn', 
           'generic-export-btn', 
           'export-csv', 
@@ -1140,6 +1154,7 @@ ${hData.note}`);
     }
 
     // Initial calls
+    syncViewControls();
     if (showingTable) {
         // Force the initial view sync without toggling the boolean
         document.getElementById('hourly-view').style.display = 'none';
