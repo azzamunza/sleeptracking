@@ -56,7 +56,7 @@
     /*  Table View Styles */
     #table-view { display: none; overflow-x: auto; }
     table { border-collapse: collapse; width: 100%; font-size: 12px; min-width: 800px; background: var(--card-bg); }
-    th, td { border: 1px solid #aaa; padding: 4px; text-align: center; }
+    th, td { border: 1px solid #aaa; padding: 4px; text-align: center; vertical-align: top; }
     th { background: #162444; }
         .table-date { min-width: 110px; width: 12ch; white-space: nowrap; }
     .table-type { min-width: 250px; hyphens: none; word-wrap: break-word; text-align: left; }
@@ -865,7 +865,7 @@ ${hData.note}`);
                     
                     /* Force the table to be at least 850px wide, but allow container to scroll */
                     table { width: 100%; min-width: 850px; border-collapse: collapse; background: #1e2d4a !important; color: #fdf5d3 !important; font-size: 11px; }
-                    th, td { border: 1px solid #3b4f73 !important; padding: 4px; text-align: center; }
+                    th, td { border: 1px solid #3b4f73 !important; padding: 4px; text-align: center; vertical-align: top; }
                     th { background: #162444 !important; position: sticky; top: 0; }
                     .table-notes { text-align: left; white-space: pre-wrap; font-size: 13px; }
                     .note-item { border-bottom: 1px solid #3b4f73; padding: 8px 0; }
