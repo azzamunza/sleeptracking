@@ -241,6 +241,8 @@
     let isPractitionerMode = !!practitionerInviteId;
     let currentViewingDate = getDiaryDateStr(new Date()); 
     let todayData = { hours: {}, type_of_day: "" };
+    let saveTimeout = null;
+    let allData = [];
     let showingTable = !!new URLSearchParams(window.location.search).get('invite_id');
     let showingNotes = true;
 
@@ -377,7 +379,12 @@
 
     // Fallback: Explicitly check session on load to ensure UI state matches
     supabaseClient.auth.getSession().then(({ data: { session } }) => {
-      if (session && !isPractitionerMode) syncAuthUI(session);
+      if (session && !isPractitionerMode) {
+        syncAuthUI(session);
+        loadDayData(currentViewingDate);
+        fetchAllData();
+        loadInvites();
+      }
     });
 
     document.getElementById('login-btn').onclick = async () => {
@@ -522,6 +529,7 @@
 
     async function saveData() {
       if (!currentUser) return;
+      console.log("Saving data for", currentViewingDate, "...");
       const payload = {
         user_id: currentUser.id,
         date_string: currentViewingDate,
@@ -533,8 +541,13 @@
         .from('sleep_days')
         .upsert(payload, { onConflict: 'user_id,date_string' });
         
-      if (error) console.error("Error saving:", error);
-      else fetchAllData(); // refresh cache in background
+      if (error) {
+        console.error("Error saving:", error);
+        alert("Failed to save entry: " + error.message);
+      } else {
+        console.log("Save successful.");
+        fetchAllData(); // refresh cache in background
+      }
     }
 
 
