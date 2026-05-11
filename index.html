@@ -7,6 +7,7 @@
 <title>The Aaron Munro Diary of Sheep Counting</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&amp;display=swap" rel="stylesheet"/>
 <link href="manifest.json" rel="manifest"/>
+<link rel="apple-touch-icon" href="icon.png">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
     :root {
@@ -236,13 +237,10 @@
     });
 
     let currentUser = null;
+    let practitionerInviteId = new URLSearchParams(window.location.search).get('invite_id');
+    let isPractitionerMode = !!practitionerInviteId;
     let currentViewingDate = getDiaryDateStr(new Date()); 
     let todayData = { hours: {}, type_of_day: "" };
-
-    let saveTimeout = null;
-    let allData = []; // Cache for table view/export
-    let isPractitionerMode = false;
-    let practitionerInviteId = new URLSearchParams(window.location.search).get('invite_id');
     let showingTable = !!new URLSearchParams(window.location.search).get('invite_id');
     let showingNotes = true;
 
@@ -323,33 +321,63 @@
 
     // --- Auth Logic ---
 
+    function syncAuthUI(session) {
+      if (isPractitionerMode) return;
+      
+      const authSection = document.getElementById('auth-section');
+      const appSection = document.getElementById('app');
+      
+      if (session) {
+        currentUser = session.user;
+        if (authSection) authSection.style.display = 'none';
+        if (appSection) appSection.style.display = 'block';
+        const emailEl = document.getElementById('user-email');
+        if (emailEl) emailEl.textContent = session.user.email;
+      } else {
+        currentUser = null;
+        if (authSection) authSection.style.display = 'block';
+        if (appSection) appSection.style.display = 'none';
+        
+        // Ensure login button is reset
+        const loginBtn = document.getElementById('login-btn');
+        if (loginBtn) {
+          loginBtn.disabled = false;
+          loginBtn.textContent = "Sign in with Google";
+        }
+      }
+    }
+
+    // Check for auth code in URL immediately to show "Signing in..." state
+    if (!isPractitionerMode && (new URLSearchParams(window.location.search).has('code') || window.location.hash.includes('access_token'))) {
+      const loginBtn = document.getElementById('login-btn');
+      if (loginBtn) {
+        loginBtn.disabled = true;
+        loginBtn.textContent = "Signing you in...";
+      }
+    }
+
     supabaseClient.auth.onAuthStateChange((event, session) => {
       if (isPractitionerMode) return;
 
-      if (session) {
-        currentUser = session.user;
-        document.getElementById('auth-section').style.display = 'none';
-        document.getElementById('app').style.display = 'block';
-        document.getElementById('user-email').textContent = session.user.email;
-        
-        // Load data on initial session or sign in
+      syncAuthUI(session);
 
-        if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN') {
+      if (session) {
+        if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
           loadDayData(currentViewingDate);
           fetchAllData(); // for table/export
           loadInvites();
         }
 
-        
         // Clear any auth tokens from the URL for a cleaner address bar
-        if (event === 'SIGNED_IN' && new URLSearchParams(window.location.search).has('code')) {
+        if (event === 'SIGNED_IN' && (new URLSearchParams(window.location.search).has('code') || window.location.hash.includes('access_token'))) {
           history.replaceState({}, document.title, window.location.pathname);
         }
-      } else {
-        currentUser = null;
-        document.getElementById('auth-section').style.display = 'block';
-        document.getElementById('app').style.display = 'none';
       }
+    });
+
+    // Fallback: Explicitly check session on load to ensure UI state matches
+    supabaseClient.auth.getSession().then(({ data: { session } }) => {
+      if (session && !isPractitionerMode) syncAuthUI(session);
     });
 
     document.getElementById('login-btn').onclick = async () => {
@@ -1066,7 +1094,6 @@ ${hData.note}`);
       const allInputs = document.querySelectorAll('input, button:not(#toggle-btn):not(#export-csv):not(#export-json):not(#export-pdf):not(#prev-day-btn):not(#next-day-btn):not(#prev-summary-btn):not(#next-summary-btn):not(#toggle-notes-btn)');
       allInputs.forEach(el => el.disabled = true);
       
-      isPractitionerMode = true;
       document.querySelectorAll('.read-only-text').forEach(el => el.style.display = '');
       
       // Leave cards visible, but Toggle button should still work

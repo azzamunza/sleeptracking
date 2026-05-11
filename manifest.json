@@ -1,16 +1,23 @@
 {
-  "name": "Sleep Tracker",
-  "short_name": "Sleep",
-  "description": "Two Week Sleep Diary Web App",
+  "name": "The Aaron Munro Diary of Sheep Counting",
+  "short_name": "Sleep Diary",
+  "description": "The Aaron Munro Diary of Sheep Counting",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#4285f4",
+  "background_color": "#111b33",
+  "theme_color": "#111b33",
   "icons": [
     {
-      "src": "icon.svg",
-      "sizes": "512x512",
-      "type": "image/svg+xml"
+      "src": "icon.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }

@@ -6,7 +6,7 @@
         './',
         './index.html',
         './manifest.json',
-        './icon.svg'
+        './icon.png'
       ]);
     })
   );
@@ -26,6 +26,16 @@ self.addEventListener('activate', (e) => {
 });
 
 self.addEventListener('fetch', (e) => {
+  // Use a Network-First strategy for the HTML/root to ensure latest auth logic
+  if (e.request.mode === 'navigate') {
+    e.respondWith(
+      fetch(e.request).catch(() => {
+        return caches.match(e.request);
+      })
+    );
+    return;
+  }
+
   e.respondWith(
     caches.match(e.request).then((response) => {
       return response || fetch(e.request);
