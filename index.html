@@ -893,14 +893,17 @@ ${hData.note}`);
                     const container = document.getElementById('scale-container');
                     const table = container.querySelector('table');
                     if (table) {
+                        table.style.width = 'max-content';
                         const tableWidth = table.offsetWidth;
-                        const windowWidth = window.innerWidth - 40; // padding
+                        const windowWidth = window.innerWidth - 20; // smaller padding for full screen
                         if (tableWidth > windowWidth) {
                             const scale = windowWidth / tableWidth;
                             container.style.transform = 'scale(' + scale + ')';
+                            container.style.transformOrigin = 'top left';
                             container.style.height = (table.offsetHeight * scale) + 'px';
                         } else {
                             container.style.transform = 'none';
+                            table.style.width = '100%';
                             container.style.height = 'auto';
                         }
                     }
