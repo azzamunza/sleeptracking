@@ -844,74 +844,47 @@ ${hData.note}`);
   
     
     function openFullScreenTable() {
-        const tableHTML = document.getElementById('table-view').innerHTML;
+        // Grab only the table and notes, excluding the card header and buttons
+        const tableContent = document.getElementById('table-container').innerHTML;
+        const notesContent = document.getElementById('table-notes-bottom').innerHTML;
         const printStyles = document.querySelector('style').innerHTML;
+        
         const newWindow = window.open('', '_blank');
         newWindow.document.write(`
-            <html><head><title>Sleep Diary - Full Screen</title>
-            <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
-            <style>
-                ${printStyles}
-                body { background: var(--bg); color: var(--text); padding: 20px; }
-                h3 { color: var(--text) !important; }
-                /* Scale container to fit window */
-                #scale-container {
-                    width: 100%;
-                    overflow: hidden;
-                    transform-origin: top left;
-                }
-                table { background: var(--card-bg) !important; color: var(--text) !important; }
-                th, td { border: 1px solid #555 !important; color: var(--text) !important; }
-                th { background: #162444 !important; }
-                .table-notes, .table-type, .table-date { white-space: pre-wrap !important; color: var(--text) !important; }
-                @media print {
-
-      #table-view .card { border: 1px solid black !important; background: white !important; color: black !important; }
-      /* Ensure the notes container is visible if it doesn't have display: none inline */
-      #table-notes-bottom:not([style*="display: none"]) { display: block !important; }
-
-      #table-container { height: auto !important; overflow: visible !important; }
-      #table-container table { transform: none !important; width: 100% !important; }
-
-      #table-view .section-header { display: block !important; }
-      #table-view .collapse-icon { display: none !important; }
-
-                   body { background: white !important; color: black !important; padding: 0; }
-                   h3 { color: black !important; }
-                   table { background: white !important; color: black !important; }
-                   th, td { border: 1px solid black !important; color: black !important; }
-                   th { background: #eee !important; color: black !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-                   .table-notes, .table-type, .table-date { color: black !important; }
-                }
-            </style>
-            </head><body>
-            <div id="scale-container">
-            ${tableHTML}
-            </div>
-            <script>
-                function scaleToFit() {
-                    const container = document.getElementById('scale-container');
-                    const table = container.querySelector('table');
-                    if (table) {
-                        table.style.width = 'max-content';
-                        const tableWidth = table.offsetWidth;
-                        const windowWidth = window.innerWidth - 20; // smaller padding for full screen
-                        if (tableWidth > windowWidth) {
-                            const scale = windowWidth / tableWidth;
-                            container.style.transform = 'scale(' + scale + ')';
-                            container.style.transformOrigin = 'top left';
-                            container.style.height = (table.offsetHeight * scale) + 'px';
-                        } else {
-                            container.style.transform = 'none';
-                            table.style.width = '100%';
-                            container.style.height = 'auto';
-                        }
-                    }
-                }
-                window.onload = scaleToFit;
-                window.onresize = scaleToFit;
-            <\/script>
-</body></html>
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="utf-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Sleep Diary - Full Screen</title>
+                <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+                <style>
+                    ${printStyles}
+                    body { background: #111b33; color: #fdf5d3; padding: 10px; margin: 0; font-family: 'Nunito', sans-serif; }
+                    #full-screen-container { width: 100%; overflow-x: auto; }
+                    table { width: 100%; border-collapse: collapse; background: #1e2d4a !important; color: #fdf5d3 !important; font-size: 12px; }
+                    th, td { border: 1px solid #3b4f73 !important; padding: 6px; text-align: center; }
+                    th { background: #162444 !important; }
+                    .table-notes { text-align: left; white-space: pre-wrap; }
+                    .note-item { border-bottom: 1px solid #3b4f73; padding: 5px 0; }
+                    
+                    /* Override any specific table container styles that might interfere */
+                    #table-container { height: auto !important; overflow: visible !important; transform: none !important; }
+                    #table-container table { transform: none !important; width: 100% !important; min-width: 800px; }
+                </style>
+            </head>
+            <body>
+                <h2 style="text-align: center; margin: 15px 0;">Sleep Diary</h2>
+                <div id="full-screen-container">
+                    <div id="table-container">
+                        ${tableContent}
+                    </div>
+                    <div id="table-notes-bottom" style="margin-top: 20px;">
+                        ${notesContent}
+                    </div>
+                </div>
+            </body>
+            </html>
         `);
         newWindow.document.close();
     }
