@@ -5,10 +5,12 @@ This file documents every push and commit made to the repository, including inte
 ---
 
 ## [May 11, 2026]
-- **[65d598b]** - Fix full screen scaling for mobile devices
-    - *Bug Report:* Full screen diary view doesn't resize correctly on mobile.
-    - *Fix:* Refined the `scaleToFit` logic in the full screen template to explicitly handle `max-content` width and fixed `transformOrigin`.
-- **[3969975]** - Update CHANGELOG with save-functionality fix
+- **[812801b]** - Switch full-screen view to scrollable layout with proper mobile viewport
+    - *Bug Report:* Full screen table is tiny/unreadable and only shows when notes are present.
+    - *Fix:* Replaced failing scaling logic with standard mobile-friendly scrollable container.
+    - *Fix:* Added missing `viewport` meta tag to the new window.
+    - *Fix:* Stripped card UI elements (buttons/headers) from the full-screen view for a cleaner data-only display.
+- **[7d3e698]** - Update CHANGELOG for mobile scaling fix
 - **[3110b47]** - Fix save functionality by restoring missing variable declarations and improving auth fallback
     - *Bug Report:* Adding data does not save entries.
     - *Fix:* Restored `saveTimeout` and `allData` variables which were accidentally removed in a previous cleanup.
