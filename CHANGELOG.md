@@ -5,6 +5,9 @@ This file documents every push and commit made to the repository, including inte
 ---
 
 ## [May 11, 2026]
+- **[a51e663]** - Disable notes control buttons when hourly log is active
+    - *Improvement:* Implemented `syncViewControls` to automatically enable/disable "Toggle Notes" and "Notes Pos" buttons based on whether the Table View or Hourly Log is active.
+    - *Practitioner:* Ensured buttons are enabled by default in Practitioner Mode (which starts in Table View).
 - **[a53f725]** - Implement automatic PWA updates with controllerchange listener
     - *Improvement:* Added `controllerchange` listener to `index.html` to automatically reload the page when a new Service Worker is activated.
     - *Improvement:* Added `reg.update()` to force a check for new versions on every page load.
