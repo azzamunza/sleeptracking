@@ -5,6 +5,10 @@ This file documents every push and commit made to the repository, including inte
 ---
 
 ## [May 11, 2026]
+- **[65d598b]** - Fix full screen scaling for mobile devices
+    - *Bug Report:* Full screen diary view doesn't resize correctly on mobile.
+    - *Fix:* Refined the `scaleToFit` logic in the full screen template to explicitly handle `max-content` width and fixed `transformOrigin`.
+- **[3969975]** - Update CHANGELOG with save-functionality fix
 - **[3110b47]** - Fix save functionality by restoring missing variable declarations and improving auth fallback
     - *Bug Report:* Adding data does not save entries.
     - *Fix:* Restored `saveTimeout` and `allData` variables which were accidentally removed in a previous cleanup.
