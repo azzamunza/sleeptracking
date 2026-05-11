@@ -5,6 +5,12 @@ This file documents every push and commit made to the repository, including inte
 ---
 
 ## [May 11, 2026]
+- **[1f6ba0e]** - Fix initial full-screen width bug on mobile and force layout reflow
+    - *Bug Report:* Full screen table doesn't fill width correctly on initial load in portrait mode.
+    - *Fix:* Added a `fixLayout` script to the full-screen window that forces a document reflow on load.
+    - *Fix:* Ensured `table-notes-bottom` is explicitly set to `display: block` in the full-screen view.
+    - *Improvement:* Increased font size for notes in full-screen mode for better readability.
+- **[0fa5feb]** - Update CHANGELOG for mobile viewport fix
 - **[812801b]** - Switch full-screen view to scrollable layout with proper mobile viewport
     - *Bug Report:* Full screen table is tiny/unreadable and only shows when notes are present.
     - *Fix:* Replaced failing scaling logic with standard mobile-friendly scrollable container.
