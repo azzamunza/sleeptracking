@@ -5,6 +5,12 @@ This file documents every push and commit made to the repository, including inte
 ---
 
 ## [May 11, 2026]
+- **[3110b47]** - Fix save functionality by restoring missing variable declarations and improving auth fallback
+    - *Bug Report:* Adding data does not save entries.
+    - *Fix:* Restored `saveTimeout` and `allData` variables which were accidentally removed in a previous cleanup.
+    - *Fix:* Enhanced `saveData` with error alerts and console logging.
+    - *Fix:* Improved initial session handling to ensure data loads on first visit if already authenticated.
+- **[6b9211c]** - Comprehensive changelog update: synced every recorded commit from reflog
 - **[7cc7755]** - Add detailed CHANGELOG with commit history and versioning
 - **[646f2d9]** - Update README with changelog, add new app icon, and fix mobile login bugs
     - *Bug Report:* Mobile login screen persists after sign-in.
