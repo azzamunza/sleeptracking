@@ -184,6 +184,9 @@
 <button onclick="quickLog('B')">Bed (B)</button>
 <button onclick="quickLog('Z')">Asleep (Z)</button>
 </div>
+<div id="quick-entry-note-container" style="margin-top: 10px;">
+  <textarea id="quick-entry-note" placeholder="Add note for current hour..." oninput="updateQuickEntryNote(this.value)"></textarea>
+</div>
 </div></div>
 <!-- Daily Summary -->
 <div class="card section-card" id="daily-summary"><div class="section-header" onclick="this.parentElement.classList.toggle('collapsed')"><h3>Nightly Log</h3><span class="collapse-icon">▼</span></div><div class="section-content">
@@ -548,6 +551,17 @@
       }
       updateHeader();
       renderHours();
+
+      // Sync Quick Entry note
+      const now = new Date();
+      if (dateStr === getDiaryDateStr(now)) {
+        const hour = now.getHours();
+        const qeNote = document.getElementById('quick-entry-note');
+        if (qeNote) {
+          qeNote.value = (todayData.hours[hour] && todayData.hours[hour].note) || '';
+          autoResizeTextarea(qeNote);
+        }
+      }
     }
 
 
@@ -605,7 +619,40 @@
 
       if (!todayData.hours[hour]) todayData.hours[hour] = { markers: [], note: '' };
       todayData.hours[hour].note = text;
+      
+      // Update quick entry if this is the current hour
+      const now = new Date();
+      const currentDiaryDate = getDiaryDateStr(now);
+      if (currentViewingDate === currentDiaryDate && hour === now.getHours()) {
+        const qeNote = document.getElementById('quick-entry-note');
+        if (qeNote && qeNote.value !== text) {
+          qeNote.value = text;
+          autoResizeTextarea(qeNote);
+        }
+      }
+      
       scheduleSave();
+    }
+
+    function updateQuickEntryNote(text) {
+      const now = new Date();
+      const hour = now.getHours();
+      const targetDiaryDate = getDiaryDateStr(now);
+      
+      if (targetDiaryDate !== currentViewingDate) {
+        currentViewingDate = targetDiaryDate;
+        loadDayData(currentViewingDate).then(() => {
+          updateNote(hour, text);
+          renderHours();
+        });
+      } else {
+        updateNote(hour, text);
+        // Find and update the textarea in the hourly log if it exists
+        const hourlyTextareas = document.querySelectorAll('#hour-list textarea');
+        // Based on renderHours, we don't have IDs on them, so we have to find by index or just re-render
+        renderHours();
+      }
+      autoResizeTextarea(document.getElementById('quick-entry-note'));
     }
 
     function quickLog(marker) {
